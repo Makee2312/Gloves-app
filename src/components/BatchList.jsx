@@ -2,33 +2,7 @@ import { useState } from "react";
 
 import { Search, Settings } from "lucide-react";
 
-export default function BatchList() {
-  const [batchList, setBatchList] = useState([
-    {
-      batch: 10001,
-      batchStatus: "Completed",
-      batchDate: "May 4th, 2025",
-      batchDesc: "Dispatched successfully",
-    },
-    {
-      batch: 10002,
-      batchStatus: "Failed",
-      batchDate: "May 5th, 2025",
-      batchDesc: "In Quality control",
-    },
-    {
-      batch: 10003,
-      batchStatus: "In progress",
-      batchDate: "May 5th, 2025",
-      batchDesc: "In Dipping process",
-    },
-    {
-      batch: 10004,
-      batchStatus: "Yet to start",
-      batchDate: "May 6th, 2025",
-      batchDesc: " - ",
-    },
-  ]);
+export default function BatchList({ batchList, setBatchList }) {
   return (
     <>
       <div className="flex items-center gap-2 border rounded-full px-4 py-2 mx-2 mt-4">
