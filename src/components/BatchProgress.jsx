@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
-
+import { useLocation } from "react-router-dom";
 export default function BatchProgress() {
+  const location = useLocation();
+  const { batchData } = location.state || {};
   const [batch, setBatch] = useState({
     id: 10001,
     status: "Completed",
@@ -41,24 +43,31 @@ export default function BatchProgress() {
       },
     },
   });
-
+  console.log(batchData);
   return (
     <div className="p-4 space-y-4">
-      
-      <div className="bg-lime-300 rounded-lg p-4">
+      <div
+        className={`${
+          batch.status == "Completed"
+            ? "bg-green-200"
+            : batch.status == "Failed"
+            ? "bg-red-200"
+            : batch.status == "In progress"
+            ? "bg-blue-100"
+            : "bg-gray-100"
+        } rounded-lg p-4`}
+      >
         <p className="text-sm">Batch id:</p>
-        <h2 className="text-2xl font-bold">{batch.id}</h2>
-        <p className="text-xs mt-1">{batch.status}</p>
+        <h2 className="text-2xl font-bold">{batchData.gloveBatchId}</h2>
+        <p className="text-xs mt-1">{batchData.status}</p>
         <div className="flex justify-between mt-2 text-sm">
-          <span>{batch.date}</span>
-          <span>{batch.desc}</span>
+          <span>{batchData.createdDate}</span>
+          <span>{batchData.description}</span>
         </div>
       </div>
 
-     
       <p className="font-semibold text-gray-700">Progress list</p>
 
-      
       <SectionCard
         title="Latex compound preparation"
         color="bg-gray-700 text-white"
@@ -93,7 +102,6 @@ function SectionCard({ title, color, data }) {
     <div
       className={`${color} rounded-xl shadow-md overflow-hidden cursor-pointer`}
     >
-     
       <div
         className="flex justify-between items-center px-4 py-3"
         onClick={() => setOpen(!open)}
@@ -102,7 +110,6 @@ function SectionCard({ title, color, data }) {
         {open ? <ChevronUp /> : <ChevronDown />}
       </div>
 
-      
       <div
         className={`transition-all duration-500 ease-in-out overflow-hidden ${
           open ? "max-h-96 opacity-100" : "max-h-0 opacity-0"

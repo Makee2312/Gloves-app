@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import gloveBatches from "../config/defaultBatch";
 
 export default function BottomDrawer({
   open,
@@ -6,14 +7,27 @@ export default function BottomDrawer({
   batchList,
   setBatchList,
 }) {
+  const today = new Date();
   const [batchData, setBatchData] = useState({
-    batch: 10004,
-    batchStatus: "Yet to start",
-    batchDate: "May 6th, 2025",
-    batchDesc: " - ",
-    count: 1,
+    ...gloveBatches,
+    gloveBatchId:
+      batchList.length > 0
+        ? batchList[batchList.length - 1].gloveBatchId + 1
+        : 10001,
+    status: "Yet to start",
+    createdDate: today.toLocaleDateString("en-IN"),
   });
-
+  useEffect(() => {
+    setBatchData({
+      ...gloveBatches,
+      gloveBatchId:
+        batchList.length > 0
+          ? batchList[batchList.length - 1].gloveBatchId + 1
+          : 10001,
+      status: "Yet to start",
+      createdDate: today.toLocaleDateString("en-IN"),
+    });
+  }, [batchList]);
   return (
     open && (
       <div className="flex flex-col items-center justify-center bg-gray-100">
@@ -34,9 +48,9 @@ export default function BottomDrawer({
             </label>
             <input
               type="text"
-              value={batchData.batch}
+              value={batchData.gloveBatchId}
               onChange={(e) =>
-                setBatchData({ ...batchData, batch: e.target.value })
+                setBatchData({ ...batchData, gloveBatchId: e.target.value })
               }
               className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Type here..."
@@ -46,9 +60,9 @@ export default function BottomDrawer({
             </label>
             <input
               type="number"
-              value={batchData.count}
+              value={batchData.batchCount}
               onChange={(e) =>
-                setBatchData({ ...batchData, count: e.target.value })
+                setBatchData({ ...batchData, batchCount: e.target.value })
               }
               className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Type here..."
