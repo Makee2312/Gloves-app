@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import gloveBatches from "../config/defaultBatch";
+import { useDispatch, useSelector } from "react-redux";
+import { add } from "../store/batchListSlice";
 
-export default function BottomDrawer({
-  open,
-  setOpen,
-  batchList,
-  setBatchList,
-}) {
+export default function BottomDrawer({ open, setOpen }) {
+  const dispatch = useDispatch();
+  const batchList = useSelector((state) => state.batchList.batchLs);
+
   const today = new Date();
   const [batchData, setBatchData] = useState({
     ...gloveBatches,
@@ -17,7 +17,9 @@ export default function BottomDrawer({
     status: "Yet to start",
     createdDate: today.toLocaleDateString("en-IN"),
   });
+
   useEffect(() => {
+    console.log(batchList);
     setBatchData({
       ...gloveBatches,
       gloveBatchId:
@@ -27,7 +29,11 @@ export default function BottomDrawer({
       status: "Yet to start",
       createdDate: today.toLocaleDateString("en-IN"),
     });
-  }, [batchList]);
+  }, [open]);
+
+  function addBatch(prod) {
+    dispatch(add(prod));
+  }
   return (
     open && (
       <div className="flex flex-col items-center justify-center bg-gray-100">
@@ -77,7 +83,7 @@ export default function BottomDrawer({
             </button>
             <button
               onClick={() => {
-                setBatchList([...batchList, batchData]);
+                addBatch(batchData);
                 setOpen(false);
               }}
               className="px-4 py-2 text-sm rounded-lg bg-blue-600 text-white hover:bg-blue-700"

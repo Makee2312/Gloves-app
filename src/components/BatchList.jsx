@@ -2,8 +2,11 @@ import { useState } from "react";
 
 import { useNavigate } from "react-router-dom";
 import { Search, Settings } from "lucide-react";
+import { useDispatch } from "react-redux";
+import { setActiveBatch } from "../store/batchListSlice";
 
-export default function BatchList({ batchList, setBatchList }) {
+export default function BatchList({ batchList }) {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   return (
     <>
@@ -33,11 +36,12 @@ export default function BatchList({ batchList, setBatchList }) {
                 ? "bg-blue-100"
                 : "bg-gray-100"
             } bg-blue-100 rounded-lg justify-between items-center`}
-            onClick={() =>
-              navigate("/progress", {
+            onClick={() => {
+              dispatch(setActiveBatch(batch));
+              navigate("/latexinput", {
                 state: { batchData: batch },
-              })
-            }
+              });
+            }}
           >
             <div>
               <p className="font-semibold text-gray-700">

@@ -1,3 +1,8 @@
+import { useSelector } from "react-redux";
+
 export default function BatchLatextCreationForm() {
-  return <div className="text-lg font-bold">Latext creation screen</div>;
+  const activeBatch = useSelector((state) => state.batchList.activeBatch);
+
+  console.log(activeBatch);
+  return <div className="text-lg font-bold">{JSON.stringify(activeBatch)}</div>;
 }

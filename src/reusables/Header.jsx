@@ -7,9 +7,9 @@ export default function Header() {
           <span className="w-2 h-2 bg-red-500 rounded-full"></span> Offline
         </p>
       </div>
-      <div className="px-4 py-2 bg-blue-100">
+      <div className="px-4 py-1 bg-blue-100">
         <p className="text-gray-500 text-sm">Welcome back</p>
-        <h2 className="text-xl font-bold">Test User</h2>
+        <h2 className="text-lg font-bold">Test User</h2>
       </div>
     </div>
   );
