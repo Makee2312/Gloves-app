@@ -55,15 +55,28 @@ const gloveBatches = [
           },
         ],
       },
-      latexDipping: {
-        monitoredData: [
-          {
-            parameterName: String,
-            value: Number | String,
-            metric: String,
-          },
-        ],
-      },
+      latexDipping: [
+        {
+          datetime: String,
+          monitoredData: [
+            {
+              parameterName: String,
+              value: Number | String,
+              metric: String,
+            },
+          ],
+        },
+        {
+          datetime: String,
+          monitoredData: [
+            {
+              parameterName: String,
+              value: Number | String,
+              metric: String,
+            },
+          ],
+        },
+      ],
     },
 
     // Post-dipping can be dynamically structured by steps
@@ -124,5 +137,4 @@ const gloveBatches = [
       ],
     },
   },
-  // , ... More batches
 ];

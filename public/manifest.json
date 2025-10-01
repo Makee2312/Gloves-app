@@ -1,10 +1,38 @@
 {
   "short_name": "Gloves manager",
   "name": "Gloves manager",
+  "id": "/",
+  "screenshots": [
+    {
+      "src": "Wide.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "Nonwide.png",
+      "sizes": "640x480"
+    }
+  ],
   "icons": [
     {
+      "src": "favicon-16x16.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "glove_24x24.png",
+      "sizes": "24x24",
+      "type": "image/png"
+    },
+    {
+      "src": "favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
       "src": "favicon.ico",
-      "sizes": "64x64 32x32 24x24 16x16",
+      "sizes": "64x64",
       "type": "image/x-icon"
     },
     {
@@ -19,7 +47,9 @@
     }
   ],
   "start_url": ".",
+  "display_override": ["fullscreen", "minimal-ui"],
   "display": "standalone",
   "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "background_color": "#ffffff",
+  "permissions": ["camera", "microphone", "geolocation"]
 }
