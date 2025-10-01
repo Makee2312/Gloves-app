@@ -3,6 +3,13 @@ import gloveBatches from "../config/defaultBatch";
 import { useDispatch, useSelector } from "react-redux";
 import { add } from "../store/batchListSlice";
 
+const stepsTemplate = [
+  { data: {}, photo: null, saved: false }, // compoundPrep
+  { data: {}, photo: null, saved: false }, // formerPrep
+  { data: {}, photo: null, saved: false }, // leaching
+  { data: {}, photo: null, saved: false }, // finishing
+];
+
 export default function BottomDrawer({ open, setOpen }) {
   const dispatch = useDispatch();
   const batchList = useSelector((state) => state.batchList.batchLs);
@@ -19,7 +26,7 @@ export default function BottomDrawer({ open, setOpen }) {
   });
 
   useEffect(() => {
-    console.log(batchList);
+    //console.log(batchList);
     setBatchData({
       ...gloveBatches,
       gloveBatchId:
@@ -32,17 +39,17 @@ export default function BottomDrawer({ open, setOpen }) {
   }, [open]);
 
   function addBatch(prod) {
-    dispatch(add(prod));
+    dispatch(add({ ...prod, steps: stepsTemplate }));
   }
   return (
     open && (
       <div className="flex flex-col items-center justify-center bg-gray-100">
-        (
+        
         <div
           className="fixed inset-0 bg-black/30 z-40"
           onClick={() => setOpen(false)}
         />
-        )
+        
         <div
           className={`fixed bottom-0 left-0 w-full bg-white shadow-lg rounded-t-2xl p-4 z-50 transition-transform duration-300 ${
             open ? "translate-y-0" : "translate-y-full"

@@ -1,20 +1,54 @@
 import { createSlice } from "@reduxjs/toolkit";
+
+const stepsTemplate = [
+  { data: {}, photo: null, saved: false },
+  { data: {}, photo: null, saved: false },
+  { data: {}, photo: null, saved: false },
+  { data: {}, photo: null, saved: false },
+];
+
 const initialState = { batchLs: [], activeBatch: {} };
+
 const batchListSlice = createSlice({
   name: "batchList",
   initialState,
   reducers: {
     add(state, action) {
-      state.batchLs.push(action.payload);
+      // Ensure steps array is present!
+      const batch = { ...action.payload, steps: stepsTemplate.map(s => ({ ...s })) };
+      state.batchLs.push(batch);
     },
     remove(state, action) {
-      return state.filter((item) => item.id != action.payload.id);
+      state.batchLs = state.batchLs.filter(item => item.gloveBatchId !== action.payload);
     },
     setActiveBatch(state, action) {
-      return { ...state, activeBatch: action.payload };
+      state.activeBatch = action.payload;
+    },
+    updateStep(state, action) {
+      const { batchId, stepIdx, form, photo } = action.payload;
+      const batch = state.batchLs.find(b => b.gloveBatchId === batchId);
+      if (batch && batch.steps && batch.steps[stepIdx]) {
+        batch.steps[stepIdx] = { data: form, photo, saved: true };
+      }
+      if (
+        state.activeBatch &&
+        state.activeBatch.gloveBatchId === batchId &&
+        state.activeBatch.steps &&
+        state.activeBatch.steps[stepIdx]
+      ) {
+        state.activeBatch.steps[stepIdx] = { data: form, photo, saved: true };
+      }
+    },
+    completeBatch(state, action) {
+      const batchId = action.payload;
+      const batch = state.batchLs.find(b => b.gloveBatchId === batchId);
+      if (batch) batch.status = "Completed";
+      if (state.activeBatch && state.activeBatch.gloveBatchId === batchId) {
+        state.activeBatch.status = "Completed";
+      }
     },
   },
 });
 
-export const { add, remove, setActiveBatch } = batchListSlice.actions;
+export const { add, remove, setActiveBatch, updateStep, completeBatch } = batchListSlice.actions;
 export default batchListSlice.reducer;
