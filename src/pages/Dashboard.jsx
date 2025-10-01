@@ -12,10 +12,14 @@ export default function Dashboard() {
 
   return (
     <>
+      <div className="px-4 py-1 bg-blue-100">
+        <p className="text-gray-500 text-sm">Welcome back</p>
+        <h2 className="text-lg font-bold">Test User</h2>
+      </div>
       <DashboardUpdates />
-      <BatchList batchList={batchList} /> {/* Floating Button */}
+      <BatchList batchList={batchList} />
       <button
-        className="fixed bottom-20 right-5 bg-cyan-400 p-4 rounded-full text-white shadow-lg"
+        className="fixed bottom-20 right-5 bg-blue-600 p-4 rounded-full text-white shadow-lg"
         onClick={() => setOpen(true)}
       >
         <FaPlus />
