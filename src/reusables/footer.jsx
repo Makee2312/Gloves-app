@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   GrDashboard,
   GrMonitor,
@@ -18,7 +18,6 @@ const navItems = [
 export default function Footer() {
   const [active, setActive] = useState(0);
   const navigate = useNavigate();
-
   return (
     <div
       className="fixed bottom-0 left-0 right-0 z-50 
@@ -31,6 +30,7 @@ export default function Footer() {
           <motion.button
             key={item.id}
             whileTap={{ scale: 0.9 }}
+            style={isActive ? { scale: 0.9 } : null}
             onClick={() => {
               setActive(item.id);
               navigate(item.route);
