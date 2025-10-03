@@ -7,7 +7,7 @@ import { setActiveBatch } from "../store/batchListSlice";
 function getBatchStatus(batch) {
   const steps = batch.steps || [];
   if (steps.length === 0) return "Yet to start";
-  const allSaved = steps.every(step => step.saved === true);
+  const allSaved = steps.every((step) => step.saved === true);
   if (allSaved) return "Completed";
   if (steps[0]?.saved === true) return "In progress";
   return "Yet to start";
@@ -21,7 +21,7 @@ export default function BatchList({ batchList }) {
   const batchesWithStatus = batchList.map((batch) => ({
     ...batch,
     derivedStatus: getBatchStatus(batch),
-    isFinished: batch.steps && batch.steps.every(step => step.saved === true)
+    isFinished: batch.steps && batch.steps.every((step) => step.saved === true),
   }));
 
   return (
