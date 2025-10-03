@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 import {
   GrDashboard,
   GrMonitor,
@@ -7,7 +8,7 @@ import {
 } from "react-icons/gr";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-
+import { useSettings } from "../hooks/useSettings";
 const navItems = [
   { id: 0, name: "Dashboard", icon: <GrDashboard />, route: "/" },
   { id: 1, name: "Monitor", icon: <GrMonitor />, route: "/progress" },
@@ -16,6 +17,8 @@ const navItems = [
 ];
 
 export default function Footer() {
+  const batchList = useSelector((state) => state.batchList);
+  const [settings, saveSettings] = useSettings(batchList);
   const [active, setActive] = useState(0);
   const navigate = useNavigate();
   return (
@@ -33,6 +36,7 @@ export default function Footer() {
             style={isActive ? { scale: 0.9 } : null}
             onClick={() => {
               setActive(item.id);
+              saveSettings(batchList);
               navigate(item.route);
             }}
             className="relative flex flex-col items-center justify-center w-20"

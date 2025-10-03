@@ -1,9 +1,16 @@
 import React from "react";
 import Header from "../reusables/Header";
 import { Outlet } from "react-router-dom";
+import { useEffect } from "react";
 import Footer from "../reusables/footer";
+import { fetchBatchList } from "../store/batchListSlice";
+import { useDispatch } from "react-redux";
 
 export default function Layout() {
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(fetchBatchList());
+  }, [dispatch]);
   return (
     <div className="min-h-screen my-4 flex flex-col">
       {/* Sticky Header */}
