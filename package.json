@@ -9,6 +9,7 @@
     "@capacitor/core": "^7.4.3",
     "@reduxjs/toolkit": "^2.9.0",
     "cra-template-pwa": "2.0.0",
+    "dexie": "^4.2.0",
     "framer-motion": "^12.23.22",
     "localforage": "^1.10.0",
     "lucide-react": "^0.544.0",

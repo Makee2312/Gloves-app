@@ -4,7 +4,7 @@ import Layout from "./pages/Layout";
 import Settings from "./pages/Settings";
 import Qc from "./pages/Qc";
 import BatchProgress from "./components/BatchProgress";
-import { Provider } from "react-redux";
+import { Provider, useDispatch } from "react-redux";
 import store from "./store/store";
 import BatchLatextCreationForm from "./components/BatchLatextCreationForm";
 
