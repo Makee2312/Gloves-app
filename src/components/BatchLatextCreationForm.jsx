@@ -1,10 +1,10 @@
+// src/components/BatchLatexCreationForm.jsx
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { updateStep, setActiveBatch, setStepSaved, completeBatch } from "../store/batchListSlice";
+import { updateStep, completeBatch } from "../store/batchListSlice";
 import { processValidations } from "../config/rules";
 import { processVariables } from "../config/variables";
 import { useNavigate, useLocation } from "react-router-dom";
-
 
 const stepsConfig = [
   { key: "compoundPrep", title: "Compound Preparation", processType: "latexPreparation" },
@@ -14,227 +14,278 @@ const stepsConfig = [
 ];
 
 export default function BatchLatexCreationForm({ onBack }) {
-
   const dispatch = useDispatch();
-  const activeBatch = useSelector((state) => state.batchList.activeBatch);
+  const navigate = useNavigate();
+  const location = useLocation();
 
+  const activeBatch = useSelector((s) => s.batchList.activeBatch);
+  const batchList = useSelector((s) => s.batchList.batchLs || []);
+
+  // UI state
   const [stepIdx, setStepIdx] = useState(0);
   const [showModal, setShowModal] = useState(false);
-  const [modalMsg, setModalMsg] = useState("");
-  const [freezeInputs, setFreezeInputs] = useState(false);
-  const location = useLocation(); 
+  const [modalErrors, setModalErrors] = useState([]); // array of { stepIndex, message }
+  const [modalSuccess, setModalSuccess] = useState("");
+  // batchLocked: when true the *inputs* should be frozen (batch Completed or viewOnly)
+  const batchLocked = activeBatch?.status === "Completed" || !!location?.state?.viewOnly;
 
+  // initialize current step
   useEffect(() => {
     if (!activeBatch || !activeBatch.gloveBatchId) {
       onBack && onBack();
       return;
     }
-    setFreezeInputs(
-      activeBatch?.status === "Completed" || location?.state?.viewOnly
-    );
-  }, [activeBatch, onBack, location]);
+    const idx = (activeBatch.steps || []).findIndex((s) => !s.saved);
+    setStepIdx(idx === -1 ? stepsConfig.length - 1 : idx);
+  }, [activeBatch, onBack]);
 
-  useEffect(() => {
-    if (activeBatch && activeBatch.steps) {
-      const idx = activeBatch.steps.findIndex(s => !s.saved);
-      setStepIdx(idx === -1 ? stepsConfig.length - 1 : idx);
+  // Helpers: validate a single step (returns array of errors for that step)
+  function validateStep(stepIndex, data) {
+    const errors = [];
+    const step = stepsConfig[stepIndex];
+    if (!step) return errors;
+    const vars = processVariables[step.processType] || [];
+    const vals = processValidations[step.processType] || {};
 
-      setFreezeInputs(
-        activeBatch.status === "Completed" || location?.state?.viewOnly
-      );
-    }
-  }, [activeBatch, location]);
-
-  // Validate ALL steps before finish
-  function validateAllSteps(batchToCheck) {
-    for (let i = 0; i < stepsConfig.length; i++) {
-      const step = stepsConfig[i];
-      const vars = processVariables[step.processType];
-      const vals = processValidations[step.processType];
-      const data = batchToCheck?.steps?.[i]?.data || {};
-      for (const v of vars) {
-        const val = data[v.key];
-        if (val == null || val === "")
-          return `${step.title}: ${v.name} is required.`;
-        if (vals[v.key]) {
-          if (Number(val) < vals[v.key].min || Number(val) > vals[v.key].max)
-            return `${step.title}: ${v.name} must be between ${vals[v.key].min} and ${vals[v.key].max} ${v.metric}.`;
+    for (const v of vars) {
+      const raw = data?.[v.key];
+      const isMissing = raw === undefined || raw === null || String(raw).trim() === "";
+      if (isMissing) {
+        errors.push({ stepIndex, message: `${step.title}: ${v.name} is required.` });
+        continue;
+      }
+      if (vals[v.key]) {
+        const { min, max } = vals[v.key];
+        const num = Number(raw);
+        if (Number.isNaN(num) || num < min || num > max) {
+          errors.push({
+            stepIndex,
+            message: `${step.title}: ${v.name} must be between ${min} and ${max} ${v.metric}.`,
+          });
         }
       }
     }
-    return null;
+    return errors;
   }
 
+  // Validate all steps (returns array of errors)
+  function validateAllSteps(batchToCheck) {
+    const errors = [];
+    for (let i = 0; i < stepsConfig.length; i++) {
+      const data = batchToCheck?.steps?.[i]?.data || {};
+      const e = validateStep(i, data);
+      if (e.length) errors.push(...e);
+    }
+    return errors;
+  }
+
+  // Determine first unsaved step index (or -1 if none)
+  const firstUnsavedIndex = (activeBatch?.steps || []).findIndex((s) => !s.saved);
+  const firstUnsaved = firstUnsavedIndex === -1 ? stepsConfig.length - 1 : firstUnsavedIndex;
+
+  // When user tries to change tab via the step indicators:
+  function handleAttemptToSelectStep(idx) {
+    if (batchLocked) return; // keep inputs locked, but we still allow selection of allowed steps below
+    // allowed indices: 0..firstUnsaved (inclusive)
+    if (idx > firstUnsaved) {
+      // block - show modal prompting to complete the earlier step first
+      const message = {
+        stepIndex: firstUnsaved,
+        message: `Please complete "${stepsConfig[firstUnsaved].title}" (Step ${firstUnsaved + 1}) before proceeding.`,
+      };
+      setModalErrors([message]);
+      setModalSuccess("");
+      setShowModal(true);
+      setStepIdx(firstUnsaved); // switch to required step
+      return;
+    }
+    // allowed; switch
+    setStepIdx(idx);
+  }
+
+  // Handle per-step save (validates the step first). On success, mark saved and auto-advance.
   function handleStepSave(form, photo) {
+    if (!activeBatch) return;
+    const errors = validateStep(stepIdx, form);
+    if (errors.length > 0) {
+      // show modal listing step errors and stay on step
+      setModalErrors(errors);
+      setModalSuccess("");
+      setShowModal(true);
+      return;
+    }
+
+    // dispatch update
     dispatch(updateStep({ batchId: activeBatch.gloveBatchId, stepIdx, form, photo }));
-    if (stepIdx < stepsConfig.length - 1) setStepIdx(stepIdx + 1);
+
+    // auto-advance to next step if exists
+    if (stepIdx < stepsConfig.length - 1) {
+      setStepIdx(stepIdx + 1);
+    } else {
+      // if it was the last step, keep it (user can press Finish below)
+      // or you can optionally call handleFinish(form, photo) here.
+    }
   }
 
-  const batchList = useSelector(state => state.batchList.batchLs);
-
+  // Finish: update current step (if needed) then validate all and complete if OK
   function handleFinish(form, photo) {
+    if (!activeBatch) return;
+
+    // update current step first
     dispatch(updateStep({ batchId: activeBatch.gloveBatchId, stepIdx, form, photo }));
 
+    // small delay to allow store to update (optional)
     setTimeout(() => {
-      // get the latest batch (may be stale)
-      let latestBatch =
-        batchList.find(b => b.gloveBatchId === activeBatch.gloveBatchId) || activeBatch;
-
-      // 🔑 merge in the current form/photo manually so it's fresh
+      const latestBatch =
+        batchList.find((b) => b.gloveBatchId === activeBatch.gloveBatchId) || activeBatch;
       const mergedBatch = {
         ...latestBatch,
-        steps: latestBatch.steps.map((s, i) =>
-          i === stepIdx ? { ...s, data: form, photo } : s
-        )
+        steps: (latestBatch.steps || []).map((s, i) => (i === stepIdx ? { ...s, data: form, photo } : s)),
       };
 
-      const err = validateAllSteps(mergedBatch);
-      if (err) {
-        setModalMsg(err);
+      const errors = validateAllSteps(mergedBatch);
+      if (errors.length > 0) {
+        setModalErrors(errors);
+        setModalSuccess("");
         setShowModal(true);
+        // bring the user to the first error step
+        setStepIdx(errors[0].stepIndex);
         return;
       }
 
+      // All good → complete
       dispatch(completeBatch(activeBatch.gloveBatchId));
-      setFreezeInputs(true);
-      setModalMsg("Batch completed successfully! ");
+      setModalErrors([]);
+      setModalSuccess("🎉 Batch completed successfully!");
       setShowModal(true);
+
+      // don't lock entire UI navigation; only inputs are frozen (batchLocked logic handles that)
       setTimeout(() => {
         setShowModal(false);
-        setTimeout(() => { onBack && onBack(); }, 500);
-      }, 1800);
+        setTimeout(() => onBack && onBack(), 500);
+      }, 1400);
     }, 200);
   }
 
+  // Inline per-step error for the displayed step
   function getStepError(data) {
-    const step = stepsConfig[stepIdx];
-    const vars = processVariables[step.processType];
-    const vals = processValidations[step.processType];
-    for (const v of vars) {
-      const val = data[v.key];
-      if (val == null || val === "") return `${v.name} is required.`;
-      if (vals[v.key]) {
-        if (Number(val) < vals[v.key].min || Number(val) > vals[v.key].max)
-          return `${v.name} must be between ${vals[v.key].min} and ${vals[v.key].max} ${v.metric}.`;
-      }
-    }
-    return null;
+    const errs = validateStep(stepIdx, data);
+    return errs.length ? errs[0].message : null;
   }
 
-  // Show saved values in input forms
+  // per-step saved flag and step data
   const stepData = activeBatch?.steps?.[stepIdx]?.data || {};
   const stepPhoto = activeBatch?.steps?.[stepIdx]?.photo || null;
+  const stepSaved = !!activeBatch?.steps?.[stepIdx]?.saved;
 
-  // Progress tracking
-  function isStepCompleted(idx) {
-    return !!activeBatch?.steps?.[idx]?.saved;
+  // close modal helper
+  function closeModal() {
+    setShowModal(false);
+    setModalErrors([]);
+    setModalSuccess("");
   }
-
-  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen w-full flex flex-col items-center bg-gray-100 pt-5 pb-10 px-2 md:px-0">
-      <div className="w-full max-w-6xl mx-auto bg-white rounded-xl shadow-lg p-4 space-y-6 relative transition duration-300 border border-blue-100">
-        {/* Modal */}
-        {showModal && (
-          <div className="fixed inset-0 flex items-center justify-center z-[1000] bg-black bg-opacity-40 backdrop-blur-sm">
-            <div className="bg-white rounded-xl shadow-lg p-8 flex flex-col items-center gap-3 border-2 border-blue-400">
-              <div className="text-3xl text-blue-600 font-extrabold animate-bounce">
-                🎉
+      {/* Modal */}
+      {showModal && (
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+          <div className="w-full max-w-lg bg-white rounded-xl shadow-2xl p-6 border border-blue-100">
+            {modalErrors && modalErrors.length > 0 ? (
+              <>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="text-3xl text-red-600">⚠️</div>
+                  <h3 className="text-lg font-semibold text-red-700">Validation</h3>
+                </div>
+
+                <div className="max-h-64 overflow-y-auto space-y-3">
+                  {modalErrors.map((e, i) => (
+                    <div key={i} className="p-3 bg-red-50 border border-red-200 rounded text-sm text-red-800">
+                      <div className="font-medium">{e.message}</div>
+                      <div className="text-xs text-gray-500 mt-1">Step {e.stepIndex + 1}: {stepsConfig[e.stepIndex]?.title}</div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-6">
+                <div className="text-4xl mb-3 text-green-600">🎉</div>
+                <div className="text-lg font-semibold text-green-700">{modalSuccess}</div>
               </div>
-              <div className="text-lg font-semibold text-blue-700">{modalMsg}</div>
-              <button
-                onClick={() => setShowModal(false)}
-                className="px-4 py-2 rounded-lg bg-blue-600 text-white font-bold hover:bg-blue-700 mt-2"
-              >
+            )}
+
+            <div className="mt-5 flex justify-end">
+              <button onClick={closeModal} className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700">
                 Close
               </button>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* Only Batch ID in sticky */}
-        <div className="h-3 bg-blue-100 rounded-full">
+      {/* Main container */}
+      <div className="w-full max-w-6xl mx-auto bg-white rounded-xl shadow-lg p-6 space-y-6">
+        {/* Batch header */}
+        <div className="sticky top-3 z-10 bg-white p-3 rounded-lg shadow-sm border border-blue-50 text-center">
+          <span className="text-xs font-bold uppercase text-blue-700">Batch:</span>
+          <span className="text-base font-bold ml-2">{activeBatch?.gloveBatchId ?? "—"}</span>
+        </div>
+
+        {/* Clickable step indicators (tabs) */}
+        <div className="flex items-center justify-between gap-3">
+          {stepsConfig.map((s, idx) => {
+            const completed = !!activeBatch?.steps?.[idx]?.saved;
+            const active = idx === stepIdx;
+            return (
+              <button
+                key={s.key}
+                type="button"
+                onClick={() => handleAttemptToSelectStep(idx)}
+                className={`flex-1 flex flex-col items-center py-2 px-1 focus:outline-none transition ${batchLocked ? "opacity-90" : "hover:scale-105"}`}
+                aria-current={active ? "true" : "false"}
+              >
+                <div className={`rounded-full w-12 h-12 flex items-center justify-center font-bold text-lg shadow-lg ${completed ? "bg-green-500 text-white" : active ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-600"}`}>
+                  {idx + 1}
+                </div>
+                <div className={`mt-2 text-xs text-center font-medium ${completed ? "text-green-600" : active ? "text-blue-600" : "text-gray-400"}`}>
+                  {s.title}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Progress bar */}
+        <div className="mt-3">
+          <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
             <div
               className="h-3 rounded-full bg-gradient-to-r from-blue-500 to-green-400 transition-all duration-700"
               style={{
-                width: `${((stepsConfig.filter((_, i) => isStepCompleted(i)).length) / stepsConfig.length) * 100}%`,
+                width: `${(stepsConfig.filter((_, i) => !!activeBatch?.steps?.[i]?.saved).length / stepsConfig.length) * 100}%`,
               }}
             />
           </div>
-
-        <div className="sticky top-0 z-10 mb-2 bg-white rounded-lg p-3 shadow flex items-center justify-center border border-blue-100">
-          <span className="text-xs font-bold uppercase text-blue-700">Batch:</span>
-          <span className="text-base font-bold ml-2">{activeBatch?.gloveBatchId}</span>
         </div>
 
-        {/* Step Tracker */}
-        <div className="flex justify-between items-center w-full gap-2 mb-4">
-          {stepsConfig.map((step, idx) => (
-            <div key={step.key} className="flex flex-col items-center flex-1">
-              <div
-                className={`rounded-full w-10 h-10 flex items-center justify-center font-bold text-lg transition duration-300 shadow-lg ${isStepCompleted(idx)
-                    ? "bg-green-500 text-white"
-                    : idx === stepIdx
-                      ? "bg-blue-500 text-white"
-                      : "bg-gray-300 text-gray-600"
-                  }`}
-              >
-                {idx + 1}
-              </div>
-              <span
-                className={`text-xs mt-2 text-center font-medium ${isStepCompleted(idx)
-                    ? "text-green-600"
-                    : idx === stepIdx
-                      ? "text-blue-600"
-                      : "text-gray-400"
-                  }`}
-              >
-                {step.title}
-              </span>
-            </div>
-          ))}
-        </div>
-
-        {/* Step Form */}
+        {/* Step form (pass stepSaved & batchLocked) */}
         <StepForm
           key={stepIdx}
+          stepIndex={stepIdx}
           step={stepsConfig[stepIdx]}
           data={stepData}
           photo={stepPhoto}
           onSave={stepIdx === stepsConfig.length - 1 ? handleFinish : handleStepSave}
+          validateStep={validateStep}
+          onValidationFail={(errs) => { setModalErrors(errs); setShowModal(true); }}
           getError={getStepError}
           lastStep={stepIdx === stepsConfig.length - 1}
-          freeze={freezeInputs}
+          stepSaved={stepSaved}
+          batchLocked={batchLocked}
         />
 
-        {/* Navigation Buttons */}
-        <div className="flex justify-between items-center pt-4">
-          <button
-            type="button"
-            className="px-4 py-2 rounded bg-gray-200 text-gray-700 font-medium hover:bg-gray-300 transition duration-300"
-            disabled={stepIdx === 0}
-            onClick={() => setStepIdx(stepIdx - 1)}
-          >
-            Back
-          </button>
-          <button
-            type="button"
-            className={`px-4 py-2 rounded font-medium transition duration-300 ${stepIdx < stepsConfig.length - 1
-                ? "bg-blue-600 text-white hover:bg-blue-700"
-                : "bg-gray-300 text-gray-500 cursor-not-allowed"
-              }`}
-            disabled={stepIdx === stepsConfig.length - 1 || (!freezeInputs && !isStepCompleted(stepIdx))}
-            onClick={() => setStepIdx(stepIdx + 1)}
-          >
-            Next
-          </button>
-
-          <button
-            type="button"
-            onClick={() => navigate("/")}
-            className="ml-2 px-4 py-2 rounded-lg bg-white text-blue-600 border border-blue-300 font-semibold hover:bg-blue-50 transition"
-          >
+        {/* Footer: navigation to main */}
+        <div className="flex justify-end">
+          <button onClick={() => navigate("/")} className="px-4 py-2 rounded-lg bg-white text-blue-600 border border-blue-300 font-semibold hover:bg-blue-50">
             ← Back to Main
           </button>
         </div>
@@ -243,114 +294,122 @@ export default function BatchLatexCreationForm({ onBack }) {
   );
 }
 
-// StepForm: disables only input fields if freeze is true
-function StepForm({ step, data, photo, onSave, getError, lastStep, freeze }) {
+/* -------------------- StepForm -------------------- */
+function StepForm({
+  stepIndex,
+  step,
+  data,
+  photo,
+  onSave,
+  validateStep,
+  onValidationFail,
+  getError,
+  lastStep,
+  stepSaved,
+  batchLocked,
+}) {
   const [form, setForm] = useState(data || {});
   const [img, setImg] = useState(photo || null);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
+  // when step changes or data changes, reset local values
   useEffect(() => {
     setForm(data || {});
     setImg(photo || null);
-  }, [data, photo]);
+    setError("");
+  }, [data, photo, stepIndex]);
+
+  const vars = processVariables[step.processType] || [];
 
   function handleChange(e, key) {
-    if (freeze) return;
-    setForm({ ...form, [key]: e.target.value });
+    // if this step is saved or batch locked, prevent edits
+    if (stepSaved || batchLocked) return;
+    setForm((f) => ({ ...f, [key]: e.target.value }));
   }
+
   function handlePhoto(e) {
-    if (freeze) return;
-    const file = e.target.files[0];
+    if (stepSaved || batchLocked) return;
+    const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = (ev) => setImg(ev.target.result);
       reader.readAsDataURL(file);
     }
   }
+
   function handleSubmit(e) {
     e.preventDefault();
-    if (freeze) return;
-    const err = getError(form);
-    if (err) {
-      setError(err);
+    if (stepSaved || batchLocked) return;
+
+    // validate this step
+    const errs = validateStep(stepIndex, form);
+    if (errs.length > 0) {
+      setError(errs[0].message);
+      onValidationFail(errs);
       return;
     }
+
     setSaving(true);
     setTimeout(() => {
       setSaving(false);
       setError("");
       onSave(form, img);
-    }, 800);
+    }, 450);
   }
-  const vars = processVariables[step.processType];
 
   return (
-    <form
-      className={`bg-gray-50 rounded-lg p-4 shadow-md space-y-4 transition duration-300 border border-blue-100 ${freeze ? "opacity-60 pointer-events-none" : ""
-        }`}
-      noValidate
-      onSubmit={handleSubmit}
-      autoComplete="off"
-    >
-      <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
-        {vars.map((v) => (  
+    <form onSubmit={handleSubmit} noValidate 
+    className={`bg-gray-50 rounded-lg p-4 shadow-md border border-blue-100 ${stepSaved ? "opacity-80" : ""}`}
+    autoComplete="off">
+      <div className="grid grid-cols-1 gap-4">
+        {vars.map((v) => (
           <div key={v.key} className="flex flex-col space-y-1">
             <label className="text-sm font-medium text-gray-700">
-              {v.name} <span className="text-gray-400 text-xs">({processValidations[step.processType][v.key]?.min } to {processValidations[step.processType][v.key]?.max} {v.metric})</span>
+              {v.name}
+              <span className="text-gray-400 text-xs ml-2">
+                ({processValidations[step.processType]?.[v.key]?.min ?? "—"} - {processValidations[step.processType]?.[v.key]?.max ?? "—"} {v.metric})
+              </span>
             </label>
+
             <input
+              inputMode="decimal"
               type="number"
-              value={form[v.key] || ""}
+              value={form[v.key] ?? ""}
               onChange={(e) => handleChange(e, v.key)}
-              className="rounded-lg border px-3 py-2 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition w-full"
-              min={processValidations[step.processType][v.key]?.min}
-              max={processValidations[step.processType][v.key]?.max}
-              required
-              disabled={freeze}
+              className="rounded-lg border px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
+              placeholder={`Enter ${v.name}`}
+              disabled={stepSaved || batchLocked}
             />
           </div>
         ))}
       </div>
-      <div className="flex flex-col space-y-1">
-        <label className="text-sm font-medium text-gray-700">
-          Upload Photo (optional)
-        </label>
-        <input
-          type="file"
-          accept="image/*"
-          onChange={handlePhoto}
-          className="rounded border px-3 py-2"
-          disabled={freeze}
-        />
-        {img && (
-          <img
-            src={img}
-            alt="Step"
-            className="mt-2 rounded-xl shadow w-32 h-32 object-cover border-2 border-blue-200"
-          />
-        )}
+
+      <div className="mt-3">
+        <label className="text-sm font-medium text-gray-700">Upload Photo (optional)</label>
+        <input type="file" accept="image/*" onChange={handlePhoto} className="mt-1 text-sm" disabled={stepSaved || batchLocked} />
+        {img && <img src={img} alt="step" className="mt-2 rounded-lg shadow border w-32 h-32 object-cover" />}
       </div>
-      {error && (
-        <div className="bg-red-100 text-red-700 rounded px-2 py-1 text-xs font-semibold shadow">
-          {error}
-        </div>
-      )}
-      {!freeze && (
-        <button
-          type="submit"
-          className={`mt-4 w-full py-2 rounded font-bold transition duration-300 ${saving
-              ? "bg-gray-400 text-white cursor-not-allowed"
-              : "bg-blue-600 text-white hover:bg-blue-700"
-            }`}
-          disabled={saving}
-        >
+
+      {/* {error && <div className="bg-red-100 text-red-700 rounded px-2 py-1 text-xs font-semibold mt-3">{error}</div>} */}
+
+      {/* Show Save/Finish only if this step is NOT already saved and batch NOT locked.
+          If step is saved, inputs are disabled but user can navigate to other steps. */}
+      {!stepSaved && !batchLocked && (
+        <button type="submit" disabled={saving} className={`mt-4 w-full py-2 rounded font-semibold ${saving ? "bg-gray-400 text-white" : "bg-blue-600 text-white hover:bg-blue-700"}`}>
           {saving ? "Saving..." : lastStep ? "Finish & Save" : "Save & Next"}
         </button>
       )}
-      {freeze && (
-        <div className="mt-4 w-full py-2 rounded font-bold text-green-700 text-center bg-green-50 border border-green-200 shadow">
-          This batch is completed and locked for editing.
+
+      {stepSaved && (
+        <div className="mt-4 w-full py-2 rounded text-green-700 bg-green-50 border border-green-200 text-center font-semibold">
+          Saved ✓
+        </div>
+      )}
+
+      {batchLocked && !stepSaved && (
+        <div className="mt-4 w-full py-2 rounded text-gray-700 bg-gray-50 border border-gray-200 text-center font-medium">
+          Inputs are locked for this batch.
         </div>
       )}
     </form>
