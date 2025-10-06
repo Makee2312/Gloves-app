@@ -22,7 +22,7 @@ export default function BatchLatexCreationForm({ onBack }) {
   const [showModal, setShowModal] = useState(false);
   const [modalMsg, setModalMsg] = useState("");
   const [freezeInputs, setFreezeInputs] = useState(false);
-  const location = useLocation(); // ✅ get location properly
+  const location = useLocation(); 
 
   useEffect(() => {
     if (!activeBatch || !activeBatch.gloveBatchId) {
@@ -97,7 +97,7 @@ export default function BatchLatexCreationForm({ onBack }) {
 
       dispatch(completeBatch(activeBatch.gloveBatchId));
       setFreezeInputs(true);
-      setModalMsg("Batch completed successfully! 🎉");
+      setModalMsg("Batch completed successfully! ");
       setShowModal(true);
       setTimeout(() => {
         setShowModal(false);
@@ -154,6 +154,15 @@ export default function BatchLatexCreationForm({ onBack }) {
         )}
 
         {/* Only Batch ID in sticky */}
+        <div className="h-3 bg-blue-100 rounded-full">
+            <div
+              className="h-3 rounded-full bg-gradient-to-r from-blue-500 to-green-400 transition-all duration-700"
+              style={{
+                width: `${((stepsConfig.filter((_, i) => isStepCompleted(i)).length) / stepsConfig.length) * 100}%`,
+              }}
+            />
+          </div>
+
         <div className="sticky top-0 z-10 mb-2 bg-white rounded-lg p-3 shadow flex items-center justify-center border border-blue-100">
           <span className="text-xs font-bold uppercase text-blue-700">Batch:</span>
           <span className="text-base font-bold ml-2">{activeBatch?.gloveBatchId}</span>
@@ -280,14 +289,15 @@ function StepForm({ step, data, photo, onSave, getError, lastStep, freeze }) {
     <form
       className={`bg-gray-50 rounded-lg p-4 shadow-md space-y-4 transition duration-300 border border-blue-100 ${freeze ? "opacity-60 pointer-events-none" : ""
         }`}
+      noValidate
       onSubmit={handleSubmit}
       autoComplete="off"
     >
       <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
-        {vars.map((v) => (
+        {vars.map((v) => (  
           <div key={v.key} className="flex flex-col space-y-1">
             <label className="text-sm font-medium text-gray-700">
-              {v.name} <span className="text-gray-400 text-xs">({v.metric})</span>
+              {v.name} <span className="text-gray-400 text-xs">({processValidations[step.processType][v.key]?.min } to {processValidations[step.processType][v.key]?.max} {v.metric})</span>
             </label>
             <input
               type="number"
