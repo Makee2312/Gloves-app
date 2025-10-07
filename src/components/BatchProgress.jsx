@@ -7,7 +7,7 @@ export default function BatchProgress() {
   const batches = useSelector((state) => state.batchList?.batchLs || []);
   const [expandedBatch, setExpandedBatch] = useState(null);
 
-  // If data not yet fetched, fetch it
+ 
   useState(() => {
     dispatch(fetchBatchList());
   }, [dispatch]);
