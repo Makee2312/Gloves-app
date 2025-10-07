@@ -31,7 +31,7 @@ export default function Dashboard() {
 
   return (
     <>
-      <div className="px-4 py-1 bg-blue-100">
+      <div className="px-4 py-1 bg-blue-100 rounded-lg">
         <p className="text-gray-500 text-sm">Welcome back</p>
         <h2 className="text-lg font-bold">Test User</h2>
       </div>

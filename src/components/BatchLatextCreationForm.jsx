@@ -1,4 +1,3 @@
-// src/components/BatchLatexCreationForm.jsx
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { updateStep, completeBatch } from "../store/batchListSlice";
@@ -21,15 +20,13 @@ export default function BatchLatexCreationForm({ onBack }) {
   const activeBatch = useSelector((s) => s.batchList.activeBatch);
   const batchList = useSelector((s) => s.batchList.batchLs || []);
 
-  // UI state
   const [stepIdx, setStepIdx] = useState(0);
   const [showModal, setShowModal] = useState(false);
-  const [modalErrors, setModalErrors] = useState([]); // array of { stepIndex, message }
+  const [modalErrors, setModalErrors] = useState([]); 
   const [modalSuccess, setModalSuccess] = useState("");
-  // batchLocked: when true the *inputs* should be frozen (batch Completed or viewOnly)
   const batchLocked = activeBatch?.status === "Completed" || !!location?.state?.viewOnly;
 
-  // initialize current step
+
   useEffect(() => {
     if (!activeBatch || !activeBatch.gloveBatchId) {
       onBack && onBack();
@@ -39,7 +36,7 @@ export default function BatchLatexCreationForm({ onBack }) {
     setStepIdx(idx === -1 ? stepsConfig.length - 1 : idx);
   }, [activeBatch, onBack]);
 
-  // Helpers: validate a single step (returns array of errors for that step)
+  
   function validateStep(stepIndex, data) {
     const errors = [];
     const step = stepsConfig[stepIndex];
@@ -68,7 +65,7 @@ export default function BatchLatexCreationForm({ onBack }) {
     return errors;
   }
 
-  // Validate all steps (returns array of errors)
+  
   function validateAllSteps(batchToCheck) {
     const errors = [];
     for (let i = 0; i < stepsConfig.length; i++) {
@@ -79,16 +76,14 @@ export default function BatchLatexCreationForm({ onBack }) {
     return errors;
   }
 
-  // Determine first unsaved step index (or -1 if none)
+ 
   const firstUnsavedIndex = (activeBatch?.steps || []).findIndex((s) => !s.saved);
   const firstUnsaved = firstUnsavedIndex === -1 ? stepsConfig.length - 1 : firstUnsavedIndex;
 
-  // When user tries to change tab via the step indicators:
+ 
   function handleAttemptToSelectStep(idx) {
-    if (batchLocked) return; // keep inputs locked, but we still allow selection of allowed steps below
-    // allowed indices: 0..firstUnsaved (inclusive)
+    if (batchLocked) return; 
     if (idx > firstUnsaved) {
-      // block - show modal prompting to complete the earlier step first
       const message = {
         stepIndex: firstUnsaved,
         message: `Please complete "${stepsConfig[firstUnsaved].title}" (Step ${firstUnsaved + 1}) before proceeding.`,
@@ -96,45 +91,38 @@ export default function BatchLatexCreationForm({ onBack }) {
       setModalErrors([message]);
       setModalSuccess("");
       setShowModal(true);
-      setStepIdx(firstUnsaved); // switch to required step
+      setStepIdx(firstUnsaved); 
       return;
     }
-    // allowed; switch
     setStepIdx(idx);
   }
 
-  // Handle per-step save (validates the step first). On success, mark saved and auto-advance.
   function handleStepSave(form, photo) {
     if (!activeBatch) return;
     const errors = validateStep(stepIdx, form);
     if (errors.length > 0) {
-      // show modal listing step errors and stay on step
       setModalErrors(errors);
       setModalSuccess("");
       setShowModal(true);
       return;
     }
 
-    // dispatch update
     dispatch(updateStep({ batchId: activeBatch.gloveBatchId, stepIdx, form, photo }));
 
-    // auto-advance to next step if exists
+   
     if (stepIdx < stepsConfig.length - 1) {
       setStepIdx(stepIdx + 1);
     } else {
-      // if it was the last step, keep it (user can press Finish below)
-      // or you can optionally call handleFinish(form, photo) here.
+    
     }
   }
 
-  // Finish: update current step (if needed) then validate all and complete if OK
+  
   function handleFinish(form, photo) {
     if (!activeBatch) return;
 
-    // update current step first
     dispatch(updateStep({ batchId: activeBatch.gloveBatchId, stepIdx, form, photo }));
 
-    // small delay to allow store to update (optional)
     setTimeout(() => {
       const latestBatch =
         batchList.find((b) => b.gloveBatchId === activeBatch.gloveBatchId) || activeBatch;
@@ -148,18 +136,16 @@ export default function BatchLatexCreationForm({ onBack }) {
         setModalErrors(errors);
         setModalSuccess("");
         setShowModal(true);
-        // bring the user to the first error step
         setStepIdx(errors[0].stepIndex);
         return;
       }
 
-      // All good → complete
+    
       dispatch(completeBatch(activeBatch.gloveBatchId));
       setModalErrors([]);
       setModalSuccess("🎉 Batch completed successfully!");
       setShowModal(true);
 
-      // don't lock entire UI navigation; only inputs are frozen (batchLocked logic handles that)
       setTimeout(() => {
         setShowModal(false);
         setTimeout(() => onBack && onBack(), 500);
@@ -167,18 +153,18 @@ export default function BatchLatexCreationForm({ onBack }) {
     }, 200);
   }
 
-  // Inline per-step error for the displayed step
+ 
   function getStepError(data) {
     const errs = validateStep(stepIdx, data);
     return errs.length ? errs[0].message : null;
   }
 
-  // per-step saved flag and step data
+ 
   const stepData = activeBatch?.steps?.[stepIdx]?.data || {};
   const stepPhoto = activeBatch?.steps?.[stepIdx]?.photo || null;
   const stepSaved = !!activeBatch?.steps?.[stepIdx]?.saved;
 
-  // close modal helper
+
   function closeModal() {
     setShowModal(false);
     setModalErrors([]);
@@ -231,7 +217,7 @@ export default function BatchLatexCreationForm({ onBack }) {
           <span className="text-base font-bold ml-2">{activeBatch?.gloveBatchId ?? "—"}</span>
         </div>
 
-        {/* Clickable step indicators (tabs) */}
+        
         <div className="flex items-center justify-between gap-3">
           {stepsConfig.map((s, idx) => {
             const completed = !!activeBatch?.steps?.[idx]?.saved;
@@ -267,7 +253,7 @@ export default function BatchLatexCreationForm({ onBack }) {
           </div>
         </div>
 
-        {/* Step form (pass stepSaved & batchLocked) */}
+       
         <StepForm
           key={stepIdx}
           stepIndex={stepIdx}
@@ -283,7 +269,7 @@ export default function BatchLatexCreationForm({ onBack }) {
           batchLocked={batchLocked}
         />
 
-        {/* Footer: navigation to main */}
+       
         <div className="flex justify-end">
           <button onClick={() => navigate("/")} className="px-4 py-2 rounded-lg bg-white text-blue-600 border border-blue-300 font-semibold hover:bg-blue-50">
             ← Back to Main
@@ -313,7 +299,7 @@ function StepForm({
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
-  // when step changes or data changes, reset local values
+  
   useEffect(() => {
     setForm(data || {});
     setImg(photo || null);
@@ -323,7 +309,6 @@ function StepForm({
   const vars = processVariables[step.processType] || [];
 
   function handleChange(e, key) {
-    // if this step is saved or batch locked, prevent edits
     if (stepSaved || batchLocked) return;
     setForm((f) => ({ ...f, [key]: e.target.value }));
   }
@@ -342,7 +327,6 @@ function StepForm({
     e.preventDefault();
     if (stepSaved || batchLocked) return;
 
-    // validate this step
     const errs = validateStep(stepIndex, form);
     if (errs.length > 0) {
       setError(errs[0].message);
@@ -391,10 +375,6 @@ function StepForm({
         {img && <img src={img} alt="step" className="mt-2 rounded-lg shadow border w-32 h-32 object-cover" />}
       </div>
 
-      {/* {error && <div className="bg-red-100 text-red-700 rounded px-2 py-1 text-xs font-semibold mt-3">{error}</div>} */}
-
-      {/* Show Save/Finish only if this step is NOT already saved and batch NOT locked.
-          If step is saved, inputs are disabled but user can navigate to other steps. */}
       {!stepSaved && !batchLocked && (
         <button type="submit" disabled={saving} className={`mt-4 w-full py-2 rounded font-semibold ${saving ? "bg-gray-400 text-white" : "bg-blue-600 text-white hover:bg-blue-700"}`}>
           {saving ? "Saving..." : lastStep ? "Finish & Save" : "Save & Next"}

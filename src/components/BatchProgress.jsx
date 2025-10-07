@@ -7,7 +7,7 @@ export default function BatchProgress() {
   const batches = useSelector((state) => state.batchList?.batchLs || []);
   const [expandedBatch, setExpandedBatch] = useState(null);
 
-  // If data not yet fetched, fetch it
+ 
   useState(() => {
     dispatch(fetchBatchList());
   }, [dispatch]);
@@ -93,7 +93,7 @@ export default function BatchProgress() {
                         : batch.gloveBatchId
                     )
                   }
-                  className="mt-4 w-full text-sm text-blue-600 font-medium hover:underline flex items-center justify-center gap-1"
+                  className="mt-4 w-full text-sm text-blue-600 font-medium hover:underline flex items-center justify-left gap-1"
                 >
                   {expandedBatch === batch.gloveBatchId
                     ? "▲ Hide Details"
