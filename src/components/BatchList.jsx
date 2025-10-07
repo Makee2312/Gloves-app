@@ -26,70 +26,58 @@ export default function BatchList({ batchList }) {
 
   return (
     <>
-      <div className="flex items-center gap-2 border rounded-full px-4 py-2 mx-2 mt-4">
-        <Search className="w-4 h-4 text-gray-400" />
-        <input
-          placeholder="Search here"
-          className="flex-1 outline-none text-sm"
-        />
-        <Settings className="w-4 h-4 text-gray-400" />
-      </div>
-
-      <div className="px-4 mt-4 flex justify-between text-sm font-semibold text-gray-600">
-        <span>Batch list</span>
-        <span>Time &amp; status</span>
+      <div className="flex items-center gap-2 border rounded-full px-4 py-2 mx-2 mt-4"> 
+      <Search className="w-4 h-4 text-gray-400" /> 
+      <input placeholder="Search here" className="flex-1 outline-none text-sm" /> 
+      <Settings className="w-4 h-4 text-gray-400" /> 
+      </div> 
+      <div className="px-6 mt-5 text-sm font-semibold text-gray-600 grid grid-cols-2"> 
+      <span>Batch list</span> 
+      <span className="text-right">Date &amp; status</span> 
       </div>
       <div className="mt-2 space-y-3 px-4 flex-1 overflow-y-auto">
         {batchesWithStatus.map((batch) => (
           <div
             key={batch.gloveBatchId}
-            className={`flex px-4 py-2  ${
-              batch.derivedStatus === "Completed"
-                ? "bg-green-100"
-                : batch.derivedStatus === "Failed"
-                ? "bg-red-200"
-                : batch.derivedStatus === "In progress"
-                ? "bg-blue-100"
-                : "bg-gray-100"
-            } rounded-lg justify-between items-center cursor-pointer`}
+            className={`grid grid-cols-2 items-center px-5 py-4 border border-gray-200 rounded-2xl shadow-md hover:shadow-lg transition-all cursor-pointer`}
             onClick={() => {
               dispatch(setActiveBatch(batch));
-              if (batch.isFinished) {
-                navigate("/latexinput", {
-                  state: { batchData: batch, viewOnly: true },
-                });
-              } else {
-                navigate("/latexinput", {
-                  state: { batchData: batch, viewOnly: false },
-                });
-              }
+              navigate("/latexinput", {
+                state: { batchData: batch, viewOnly: !!batch.isFinished },
+              });
             }}
           >
+            {/* Left side - Batch info */}
             <div>
-              <p className="font-semibold text-gray-700">
+              <h2 className="font-semibold text-gray-800">
                 Batch #{batch.gloveBatchId}
-              </p>
+              </h2>
               <p className="text-xs text-gray-500">{batch.description}</p>
             </div>
-            <div className="text-right">
-              <p className="text-xs text-gray-400">{batch.createdDate}</p>
+
+            {/* Right side - Time and Status */}
+            <div className="flex flex-col items-end justify-center space-y-1">
               <p
-                className={`${
-                  batch.derivedStatus === "Completed"
-                    ? "text-green-600"
+                className={`text-xs px-3 py-1 rounded-full font-semibold text-right
+            ${batch.derivedStatus === "Completed"
+                    ? "bg-green-100 text-green-700"
                     : batch.derivedStatus === "Failed"
-                    ? "text-red-600"
-                    : batch.derivedStatus === "In progress"
-                    ? "text-blue-600"
-                    : "text-gray-600"
-                } text-sm font-semibold`}
+                      ? "bg-red-100 text-red-700"
+                      : batch.derivedStatus === "In progress"
+                        ? "bg-yellow-100 text-yellow-700"
+                        : "bg-gray-100 text-gray-700"
+                  }`}
               >
                 {batch.derivedStatus}
+              </p>
+              <p className="text-xs px-3 text-gray-400 text-right">
+                {batch.createdDate}
               </p>
             </div>
           </div>
         ))}
       </div>
+
     </>
   );
 }
