@@ -26,15 +26,41 @@ export const processVariables = {
     { name: "Duration", metric: "minutes", key: "duration" },
   ],
 
+  drying: [
+    { name: "Temperature", metric: "°C", key: "temperature" },
+    { name: "Humidity", metric: "%", key: "humidity" },
+  ],
+
+  curing: [
+    { name: "Temperature", metric: "°C", key: "temperature" },
+    { name: "Time", metric: "minutes", key: "time" },
+    {
+      name: "Proper Vulcanization",
+      metric: "yes/no",
+      key: "vulcanizationStatus",
+    },
+  ],
+
   finishing: [
     { name: "Beading Roller Speed", metric: "rpm", key: "rollerSpeed" },
-    { name: "Powdering Concentration", metric: "g/L", key: "powderConc" },
+    { name: "Roller Pressure", metric: "MPa", key: "rollerPressure" },
+    { name: "Powdered Gloves", metric: "yes/no", key: "powderedGloves" },
+    {
+      name: "Polymer Coating Concentration",
+      metric: "g/L",
+      key: "polymerConc",
+    },
+    {
+      name: "Cornstarch Slurry Thickness",
+      metric: "mm",
+      key: "cornstarchThickness",
+    },
+    {
+      name: "Chlorine Concentration",
+      metric: "ppm",
+      key: "chlorineConcentration",
+    },
     { name: "Chlorine Exposure Time", metric: "seconds", key: "chlorineTime" },
-  ],
-  stripping: [
-    { name: "Stripping Method", metric: "type", key: "strippingMethod" }, // Manual/Automatic
-    { name: "Cycle Time", metric: "seconds", key: "cycleTime" },
-    { name: "Defect Count", metric: "count", key: "defectCount" },
   ],
 
   testingAndPackaging: [
