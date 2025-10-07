@@ -31,4 +31,38 @@ export const processValidations = {
     powderConc: { min: 1, max: 20 }, // g/L
     chlorineTime: { min: 10, max: 120 }, // seconds
   },
+  stripping: {
+    cycleTime: { min: 2, max: 20 }, // seconds
+    defectCount: { min: 0, max: 10 }, // count
+  },
+
+  testingAndPackaging: {
+    // Visual Inspection
+    visualDefectCount: { min: 0, max: 20 }, // count
+
+    // Water-tightness Test
+    waterTightnessAql: { min: 0.25, max: 2.5 }, // AQL range for general to surgical gloves
+    waterTightnessPassCount: { min: 0, max: 100 }, // count
+    waterTightnessFailCount: { min: 0, max: 10 }, // count
+
+    // Physical Properties
+    forceAtBreak: { min: 6, max: 18 }, // N
+    elongationAtBreak: { min: 500, max: 900 }, // %
+    tensileStrength: { min: 14, max: 35 }, // MPa
+
+    // Dimensional Tests
+    gloveLength: { min: 220, max: 300 }, // mm
+    palmWidth: { min: 70, max: 120 }, // mm
+    gloveThickness: { min: 0.05, max: 0.2 }, // mm
+
+    // Sterility
+    sterilityResult: { allowed: ["pass", "fail"] }, // categorical validation
+    biocompatibilityResult: { allowed: ["pass", "fail"] }, // categorical validation
+
+    // Packaging Data
+    batchNumber: { required: true },
+    packingDate: { required: true },
+    testResultsSummary: { maxLength: 500 },
+    sterilizationDetails: { maxLength: 300 },
+  },
 };
