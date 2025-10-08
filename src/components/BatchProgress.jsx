@@ -1,30 +1,46 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchBatchList } from "../store/batchListSlice";
+import { ChevronDown } from "lucide-react";
+
 
 export default function BatchProgress() {
   const dispatch = useDispatch();
   const batches = useSelector((state) => state.batchList?.batchLs || []);
-  const [expandedBatch, setExpandedBatch] = useState(null);
-
- 
+  const [expandedBatch, setExpandedBatch] = useState("null");
+  const [selectedBatch,setSelectedBatch] = useState("select batch");
+  const [open, setOpen] = useState(false);
+  const handleChange = (e) =>{
+    setSelectedBatch(e.target.value)
+  }
   useState(() => {
     dispatch(fetchBatchList());
   }, [dispatch]);
-
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-10 px-4">
       <div className="max-w-7xl mx-auto space-y-8">
+      <div className="bg-blue-200 rounded-2xl px-4 py-4 w-auto flex items-center justify-between w-full">
         <h1 className="text-2xl font-bold text-gray-800 tracking-tight">
-          Glove Monitoring Dashboard
+         Active Batch: {//batches.map((batch)=>batch.gloveBatchId)
+         }
         </h1>
-
+        <button
+        onClick={() => setOpen(!open)}
+        className="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-700"
+      >
+        Select Batch
+        <ChevronDown className="w-4 h-4 text-gray-400" />
+      </button>
+      </div>
+     
+     
         {batches.length === 0 && (
           <p className="text-gray-500 text-sm italic text-center">
             No batches available. Please load or add data.
           </p>
         )}
-
+         {open && (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {batches.map((batch) => {
             const total = batch.steps?.length || 0;
@@ -152,6 +168,7 @@ export default function BatchProgress() {
             );
           })}
         </div>
+         )}
       </div>
     </div>
   );
