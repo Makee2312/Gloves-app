@@ -19,21 +19,31 @@ export const processValidations = {
     immersionSpeed: { min: 1, max: 10 }, // cm/s
     dwellTime: { min: 5, max: 60 }, // seconds
   },
-
   leaching: {
     waterTemp: { min: 40, max: 80 }, // °C
     flowRate: { min: 5, max: 50 }, // L/min
     duration: { min: 5, max: 60 }, // minutes
   },
 
+  drying: {
+    temperature: { min: 60, max: 120 }, // °C
+    humidity: { min: 30, max: 70 }, // % relative humidity
+  },
+
+  curing: {
+    temperature: { min: 100, max: 130 }, // °C
+    time: { min: 10, max: 60 }, // minutes
+    vulcanizationStatus: { allowed: ["yes", "no"] }, // boolean-type validation
+  },
+
   finishing: {
     rollerSpeed: { min: 50, max: 300 }, // rpm
-    powderConc: { min: 1, max: 20 }, // g/L
+    rollerPressure: { min: 0.1, max: 1.0 }, // MPa (approx. 1 MPa = 145 psi)
+    powderedGloves: { allowed: ["yes", "no"] }, // categorical field
+    polymerConc: { min: 1, max: 20 }, // g/L
+    cornstarchThickness: { min: 0.05, max: 0.5 }, // mm
+    chlorineConcentration: { min: 200, max: 800 }, // ppm
     chlorineTime: { min: 10, max: 120 }, // seconds
-  },
-  stripping: {
-    cycleTime: { min: 2, max: 20 }, // seconds
-    defectCount: { min: 0, max: 10 }, // count
   },
 
   testingAndPackaging: {
