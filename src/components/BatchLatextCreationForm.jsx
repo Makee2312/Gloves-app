@@ -407,12 +407,15 @@ function StepForm({
       setSaving(false);
       setError("");
       console.log(form);
-      const formatData = Object.entries(form).map(([key, value]) => {
-        const variable = vars.find((v) => v.key === key);
-        const metric = variable ? variable.metric : "";
-        return `${value} ${metric}`;
-      });
-
+      const formatData = Object.fromEntries(
+        new Map(
+          vars.map((v) => [
+            v.key,
+            form[v.key] !== undefined ? `${form[v.key]} ${v.metric}` : "",
+          ])
+        )
+      );
+      console.log(formatData);
       onSave(formatData, form, img);
     }, 450);
   }
