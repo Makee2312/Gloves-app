@@ -1,16 +1,17 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { dbContext } from "../db/dbContext"; // Adjust import path
-
+import stepConfig from "../components/BatchLatextCreationForm";
 export const fetchBatchList = createAsyncThunk("batchList/fetch", async () => {
   const batchLs = await dbContext.settings.get(1);
   console.log(batchLs);
   return batchLs;
 });
 const stepsTemplate = [
-  { data: {}, photo: null, saved: false },
-  { data: {}, photo: null, saved: false },
-  { data: {}, photo: null, saved: false },
-  { data: {}, photo: null, saved: false },
+  { processType: "latexPreparation", data: {}, photo: null, saved: false },
+  { processType: "formerPreparation", data: {}, photo: null, saved: false },
+  { processType: "leaching", data: {}, photo: null, saved: false },
+  { processType: "finishing", data: {}, photo: null, saved: false },
+  { processType: "qc", data: {}, photo: null, saved: false },
 ];
 
 const initialState = { batchLs: [], activeBatch: {} };
@@ -36,10 +37,15 @@ const batchListSlice = createSlice({
       state.activeBatch = action.payload;
     },
     updateStep(state, action) {
-      const { batchId, stepIdx, form, photo } = action.payload;
+      const { batchId, stepIdx, formData, photo } = action.payload;
       const batch = state.batchLs.find((b) => b.gloveBatchId === batchId);
       if (batch && batch.steps && batch.steps[stepIdx]) {
-        batch.steps[stepIdx] = { data: form, photo, saved: true };
+        batch.steps[stepIdx] = {
+          ...batch.steps[stepIdx],
+          data: formData,
+          photo,
+          saved: true,
+        };
       }
       if (
         state.activeBatch &&
@@ -47,15 +53,20 @@ const batchListSlice = createSlice({
         state.activeBatch.steps &&
         state.activeBatch.steps[stepIdx]
       ) {
-        state.activeBatch.steps[stepIdx] = { data: form, photo, saved: true };
+        state.activeBatch.steps[stepIdx] = {
+          ...batch.steps[stepIdx],
+          data: formData,
+          photo,
+          saved: true,
+        };
       }
     },
     completeBatch(state, action) {
       const batchId = action.payload;
       const batch = state.batchLs.find((b) => b.gloveBatchId === batchId);
-      if (batch) batch.status = "Completed";
+      if (batch) batch.status = "In QC";
       if (state.activeBatch && state.activeBatch.gloveBatchId === batchId) {
-        state.activeBatch.status = "Completed";
+        state.activeBatch.status = "In QC";
       }
     },
   },
