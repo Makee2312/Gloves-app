@@ -113,6 +113,7 @@ export default function BatchLatexCreationForm({ onBack }) {
   function handleStepSave(formData, form, photo) {
     console.log(form);
     if (!activeBatch) return;
+
     const errors = validateStep(stepIdx, form);
     if (errors.length > 0) {
       setModalErrors(errors);
@@ -158,14 +159,14 @@ export default function BatchLatexCreationForm({ onBack }) {
         ),
       };
 
-      const errors = validateAllSteps(mergedBatch);
-      if (errors.length > 0) {
-        setModalErrors(errors);
-        setModalSuccess("");
-        setShowModal(true);
-        setStepIdx(errors[0].stepIndex);
-        return;
-      }
+      // const errors = validateAllSteps(mergedBatch);
+      // if (errors.length > 0) {
+      //   setModalErrors(errors);
+      //   setModalSuccess("");
+      //   setShowModal(true);
+      //   setStepIdx(errors[0].stepIndex);
+      //   return;
+      // }
 
       dispatch(markAsQCBatch(activeBatch.gloveBatchId));
       setModalErrors([]);
@@ -373,8 +374,7 @@ function StepForm({
     setImg(photo || null);
     setError("");
   }, [data, photo, stepIndex]);
-
-  const vars = processVariables[step.processType] || [];
+  const vars = processVariables[step?.processType] || [];
 
   function handleChange(e, key, metric) {
     if (stepSaved || batchLocked) return;
@@ -419,7 +419,6 @@ function StepForm({
       onSave(formatData, form, img);
     }, 450);
   }
-
   return (
     <form
       onSubmit={handleSubmit}

@@ -1,17 +1,24 @@
 import { processVariables } from "../config/variables";
 import { processValidations } from "../config/rules";
 import CustomDropdown from "../reusables/CustomDropdown";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { updateQCBatch } from "../store/batchListSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { all } from "axios";
 import { BiEdit } from "react-icons/bi";
+import { Search, Settings } from "lucide-react";
+
+import { useNavigate, useLocation } from "react-router-dom";
+import BatchSearchBox from "../reusables/BatchSearchBox";
+import { useBatchData } from "../hooks/useBatchData";
 
 export default function Qc() {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const qcVariables = processVariables.testingAndPackaging;
   const qcRules = processValidations.testingAndPackaging;
-
+  const batchesList = useSelector((state) => state.batchList.batchLs);
+  const [activeBatch, setActiveBatch] = useState();
   const [modalErrors, setModalErrors] = useState([]);
   // ✅ Initialize steps properly
   const [qcResultData, setQcResultData] = useState(
@@ -29,6 +36,7 @@ export default function Qc() {
   // ✅ Fixed handleSubmit logic
   function handleSubmit(e) {
     e.preventDefault();
+    if (!activeBatch) return;
     const errors = validateStep();
     if (errors.length > 0) {
       setModalErrors(errors);
@@ -53,11 +61,14 @@ export default function Qc() {
         photo: null,
       })
     );
-    setActiveStep(
-      activeStep + 1 < qcResultData.length - 1
-        ? activeStep + 1
-        : qcResultData.length - 1
+    const nextMeasurementStep = qcResultData.findIndex(
+      (result) => result.results == null || result.results == {}
     );
+    if (nextMeasurementStep < qcResultData.length - 1) {
+      setActiveStep(nextMeasurementStep);
+    } else {
+      navigate("/");
+    }
     console.log("Updated Steps:", qcResultData);
   }
 
@@ -104,7 +115,7 @@ export default function Qc() {
   //   }
   //   return errors;
   // }
-
+  console.log(batchesList);
   return (
     <form onSubmit={handleSubmit}>
       <div className="text-lg font-bold mb-4">Quality control</div>
@@ -151,108 +162,152 @@ export default function Qc() {
           </div>
         </div>
       )}
+      {batchesList ? (
+        <BatchSearchBox
+          batchesList={batchesList.filter((batch) => batch.status == "In QC")}
+          activeBatch={activeBatch}
+          setActiveBatch={setActiveBatch}
+        />
+      ) : null}
+      {activeBatch ? (
+        <div className="text-lg px-2 my-2 font-semibold rounded-md bg-blue-800 text-white width-full ">
+          Batch on QC: {activeBatch}
+        </div>
+      ) : null}
+      {activeBatch
+        ? qcVariables.map((variable, index) => (
+            <div
+              key={index}
+              className={`${
+                qcResultData[index].results != {} &&
+                qcResultData[index].results != null &&
+                activeStep != index
+                  ? "bg-green-200"
+                  : "bg-gray-50"
+              } rounded-lg p-4 shadow-md border border-blue-100 mb-4`}
+            >
+              <div className=" flex text-lg text-left  mb-2 items-center">
+                <div
+                  className={`${
+                    activeStep === index
+                      ? "bg-blue-600"
+                      : qcResultData[index].results == {} ||
+                        qcResultData[index].results == null
+                      ? "bg-gray-600"
+                      : "bg-green-600"
+                  } text-white rounded-xl mx-2 w-5 h-5 text-sm text-center justify-center`}
+                >
+                  {index + 1}
+                </div>
+                {variable.type}
+              </div>
+              <div
+                className={
+                  qcResultData[index].results != {} &&
+                  qcResultData[index].results != null &&
+                  activeStep != index
+                    ? "flex text-center justify-center "
+                    : ""
+                }
+              >
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {activeStep === index ? (
+                    variable.values.map((value) => (
+                      <div key={value.key} className="block my-2">
+                        <label className="text-sm block mb-1 font-medium text-gray-700">
+                          {value.name}
+                          <span className="text-xs text-gray-400 ml-1">
+                            {(() => {
+                              const rule = qcRules?.[value.key];
+                              if (
+                                !rule ||
+                                (rule.min == null && rule.max == null)
+                              )
+                                return "";
+                              return `(${rule.min ?? ""} - ${rule.max ?? ""} ${
+                                value.metric || ""
+                              })`;
+                            })()}
+                          </span>
+                        </label>
 
-      {qcVariables.map((variable, index) => (
-        <div
-          key={index}
-          className="bg-gray-50 rounded-lg p-4 shadow-md border border-blue-100 mb-4"
-        >
-          <div className="text-lg text-left text-gray-700 mb-2">
-            {index + variable.type}
-          </div>
-          <div
-            className={
-              activeStep > index ? "flex text-center justify-center " : ""
-            }
-          >
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {activeStep === index ? (
-                variable.values.map((value) => (
-                  <div key={value.key} className="block my-2">
-                    <label className="text-sm block mb-1 font-medium text-gray-700">
-                      {value.name}
-                      <span className="text-xs text-gray-400 ml-1">
-                        {(() => {
-                          const rule = qcRules?.[value.key];
-                          if (!rule || (rule.min == null && rule.max == null))
-                            return "";
-                          return `(${rule.min ?? ""} - ${rule.max ?? ""} ${
-                            value.metric || ""
-                          })`;
-                        })()}
-                      </span>
-                    </label>
-
-                    {value.type === "bool" ? (
-                      <CustomDropdown
-                        items={qcRules?.[value.key]?.allowed || ["Yes", "No"]}
-                        onSelect={(selected) =>
-                          setForm((prev) => ({
-                            ...prev,
-                            [value.key]: selected,
-                          }))
-                        }
-                        placeHolder={form[value.key]}
-                      />
-                    ) : (
-                      <input
-                        inputMode="decimal"
-                        type={value.type}
-                        value={form[value.key] || ""}
-                        onChange={(e) =>
-                          setForm((prev) => ({
-                            ...prev,
-                            [value.key]: e.target.value,
-                          }))
-                        }
-                        className="w-full rounded-lg border px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
-                        placeholder={`Enter ${value.name}`}
-                        disabled={false}
-                      />
-                    )}
-                  </div>
-                ))
-              ) : (
-                <div className="text-gray-500 text-sm italic">
-                  {activeStep > index ? (
-                    <div>{JSON.stringify(qcResultData[index].results)}</div>
+                        {value.type === "bool" ? (
+                          <CustomDropdown
+                            items={
+                              qcRules?.[value.key]?.allowed || ["Yes", "No"]
+                            }
+                            onSelect={(selected) =>
+                              setForm((prev) => ({
+                                ...prev,
+                                [value.key]: selected,
+                              }))
+                            }
+                            placeHolder={form[value.key]}
+                          />
+                        ) : (
+                          <input
+                            inputMode="decimal"
+                            type={value.type}
+                            value={form[value.key] || ""}
+                            onChange={(e) =>
+                              setForm((prev) => ({
+                                ...prev,
+                                [value.key]: e.target.value,
+                              }))
+                            }
+                            className="w-full rounded-lg border px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
+                            placeholder={`Enter ${value.name}`}
+                            disabled={false}
+                          />
+                        )}
+                      </div>
+                    ))
                   ) : (
-                    "Yet to test"
+                    <div className="text-gray-500 text-sm italic">
+                      {qcResultData[index].results != {} &&
+                      qcResultData[index].results != null &&
+                      activeStep != index ? (
+                        <div>{JSON.stringify(qcResultData[index].results)}</div>
+                      ) : (
+                        "Yet to test"
+                      )}
+                    </div>
                   )}
                 </div>
-              )}
+                {qcResultData[index].results != {} &&
+                qcResultData[index].results != null &&
+                activeStep != index ? (
+                  <BiEdit
+                    className="text-right text-2xl"
+                    onClick={() => {
+                      setActiveStep(index);
+                      setForm({});
+                      console.log(qcResultData);
+                      Object.entries(qcResultData[index].results).map(
+                        ([key, value]) => {
+                          form[key] = value;
+                        }
+                      );
+                      setForm(form);
+                      console.log(form);
+                      console.log(qcResultData);
+                    }}
+                  />
+                ) : null}
+              </div>
+              {activeStep === index ? (
+                <button
+                  type="submit"
+                  className={`mt-4 w-full py-2 rounded font-semibold ${"bg-blue-600 text-white hover:bg-blue-700"}`}
+                >
+                  {variable.type === "Packaging data"
+                    ? "Save & Complete"
+                    : "Save & Next"}
+                </button>
+              ) : null}
             </div>
-            {activeStep > index ? (
-              <BiEdit
-                className="text-center text-3xl"
-                onClick={() => {
-                  setActiveStep(index);
-                  setForm({});
-                  console.log(qcResultData);
-                  Object.entries(qcResultData[index].results).map(
-                    ([key, value]) => {
-                      form[key] = value;
-                    }
-                  );
-                  setForm(form);
-                  console.log(form);
-                  console.log(qcResultData);
-                }}
-              />
-            ) : null}
-          </div>
-          {activeStep === index ? (
-            <button
-              type="submit"
-              className={`mt-4 w-full py-2 rounded font-semibold ${"bg-blue-600 text-white hover:bg-blue-700"}`}
-            >
-              {variable.type === "Packaging data"
-                ? "Save & Complete"
-                : "Save & Next"}
-            </button>
-          ) : null}
-        </div>
-      ))}
+          ))
+        : null}
     </form>
   );
 }
