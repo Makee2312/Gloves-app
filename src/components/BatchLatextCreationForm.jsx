@@ -9,15 +9,17 @@ const stepsConfig = [
   {
     key: "compoundPrep",
     title: "Compound Preparation",
-    processType: "latexPreparation",
+    processValidations: "latexPreparation",
   },
   {
     key: "formerPrep",
     title: "Former Preparation",
-    processType: "formerPreparation",
+    processValidations: "formerPreparation",
   },
-  { key: "leaching", title: "Leaching", processType: "leaching" },
-  { key: "finishing", title: "Finishing", processType: "finishing" },
+  { key: "leaching", title: "Leaching", processValidations: "leaching" },
+  { key:"drying",title:"drying",processValidations:"drying"},
+  {key:"curing",title:"curing",processValidations:"curing"},
+  { key: "finishing", title: "Finishing", processValidations: "finishing" },
 ];
 
 export default function BatchLatexCreationForm({ onBack }) {
@@ -48,8 +50,8 @@ export default function BatchLatexCreationForm({ onBack }) {
     const errors = [];
     const step = stepsConfig[stepIndex];
     if (!step) return errors;
-    const vars = processVariables[step.processType] || [];
-    const vals = processValidations[step.processType] || {};
+    const vars = processVariables[step.processValidations] || [];
+    const vals = processValidations[step.processValidations] || {};
 
     for (const v of vars) {
       const raw = data?.[v.key];
@@ -374,7 +376,7 @@ function StepForm({
     setError("");
   }, [data, photo, stepIndex]);
 
-  const vars = processVariables[step.processType] || [];
+  const vars = processVariables[step.processValidations] || [];
 
   function handleChange(e, key, metric) {
     if (stepSaved || batchLocked) return;
@@ -435,8 +437,8 @@ function StepForm({
             <label className="text-sm font-medium text-gray-700">
               {v.name}
               <span className="text-gray-400 text-xs ml-2">
-                ({processValidations[step.processType]?.[v.key]?.min ?? "—"} -{" "}
-                {processValidations[step.processType]?.[v.key]?.max ?? "—"}{" "}
+                ({processValidations[step.processValidations]?.[v.key]?.min ?? "—"} -{" "}
+                {processValidations[step.processValidations]?.[v.key]?.max ?? "—"}{" "}
                 {v.metric})
               </span>
             </label>

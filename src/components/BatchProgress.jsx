@@ -62,7 +62,7 @@ export default function BatchProgress() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-10 px-4">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header Section */}
-        <div className="bg-blue-200 rounded-2xl px-4 py-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="bg-white-800 rounded-2xl px-4 py-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <h1 className="text-2xl font-bold text-gray-800 tracking-tight">
             Monitor Batch:{" "}
             <span className="text-gray-700">
@@ -164,8 +164,8 @@ export default function BatchProgress() {
               <div
                 className={`h-2 rounded-full transition-all ${currentBatch.steps?.filter((s) => s.saved)?.length ===
                     currentBatch.steps?.length
-                    ? "bg-green-500"
-                    : "bg-yellow-400"
+                    ? "bg-green-400"
+                    : "bg-yellow-300"
                   }`}
                 style={{
                   width: `${((currentBatch.steps?.filter((s) => s.saved)?.length || 0) /
@@ -197,20 +197,25 @@ export default function BatchProgress() {
                 {currentBatch.steps.map((step, idx) => {
                   const status = step.saved ? "Completed" : "Not Saved";
                   return (
+                    <div className="text-xl rounded-lg bg-gray-100 border py-3 px-5 border-gray-200">
                     <div
                       key={idx}
-                      className={`text-xl p-3 rounded-lg ${step.saved
+                      className={`text-xl p-3 py-3 rounded-lg ${step.saved
                           ? "bg-green-100 text-green-700"
                           : "bg-gray-50 text-gray-600"
                         }`}
-                    >
+                    > 
                       <div className="flex justify-between">
-                        <p className="font-medium">Step {idx + 1}</p>
-                        <p className="text-xl font-medium italic">{status}</p>
+                        <p className="font-medium">Step {idx + 1}<br/>
+                        {step.processType.toUpperCase()}</p>
+
+                        <p className="text-xl font-medium italic">{status}<br/>
+                        {console.log(step.data)}</p>
+                      </div>
                       </div>
 
                       {step.data && (
-                        <div className="mt-2 mb-5 text-xl text-gray-700 border border-gray-300 rounded-lg p-2">
+                        <div className="mt-2 mb-5 text-medium text-gray-700 p-2">
                           {Object.entries(step.data).map(([key, value], i) => (
                             <div
                               key={i}
