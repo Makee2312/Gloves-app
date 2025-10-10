@@ -3,7 +3,7 @@ import { dbContext } from "../db/dbContext"; // Adjust import path
 import stepConfig from "../components/BatchLatextCreationForm";
 export const fetchBatchList = createAsyncThunk("batchList/fetch", async () => {
   const batchLs = await dbContext.settings.get(1);
-  console.log(batchLs);
+  //console.log(batchLs);
   return batchLs;
 });
 const stepsTemplate = [
@@ -58,6 +58,7 @@ const batchListSlice = createSlice({
           data: formData,
           photo,
           saved: true,
+          saved_date:Date(),
         };
       }
     },
