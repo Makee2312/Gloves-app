@@ -185,7 +185,7 @@ export default function BatchProgress() {
                     : currentBatch.gloveBatchId
                 )
               }
-              className="mt-4 w-full text-sm text-blue-600 font-medium hover:underline flex items-center justify-left gap-1"
+              className="mt-4 w-full text-md text-blue-600 font-medium hover:text-lg flex items-center justify-left gap-1"
             >
               {expandedBatch === currentBatch.gloveBatchId
                 ? "▲ Hide Details"
@@ -193,16 +193,16 @@ export default function BatchProgress() {
             </button>
 
             {expandedBatch === currentBatch.gloveBatchId && (
-              <div className="mt-4 border-t pt-3 space-y-3 animate-fadeIn">
+              <div className="mt-4 border-t  border-gray-200 pt-3 space-y-3 animate-fadeIn">
                 {currentBatch.steps.map((step, idx) => {
                   const status = step.saved ? "Completed" : "Not Saved";
                   return (
-                    <div className="text-xl rounded-lg bg-gray-100 border py-3 px-5 border-gray-200">
+                    <div className="text-xl rounded-lg  border py-3 px-5 border-gray-200">
                     <div
                       key={idx}
-                      className={`text-xl p-3 py-3 rounded-lg ${step.saved
-                          ? "bg-green-100 text-green-700"
-                          : "bg-gray-50 text-gray-600"
+                      className={`text-xl p-3 py-3 ${step.saved
+                          ? " text-green-700"
+                          : " text-gray-600"
                         }`}
                     > 
                       <div className="flex justify-between">
@@ -210,21 +210,21 @@ export default function BatchProgress() {
                         {step.processType.toUpperCase()}</p>
 
                         <p className="text-xl font-medium italic">{status}<br/>
-                        {console.log(step.data)}</p>
+                        {step.saved_date}</p>
                       </div>
                       </div>
 
                       {step.data && (
-                        <div className="mt-2 mb-5 text-medium text-gray-700 p-2">
+                        <div className="mt-1 mb-2 ml-1 mr-1 grid grid-flow-row-dense sm:grid-cols-2 gap-3 text-medium text-gray-700 px-2">
                           {Object.entries(step.data).map(([key, value], i) => (
                             <div
                               key={i}
-                              className="flex  border border-gray-300 text-xl rounded-xl mb-1 justify-between py-2 px-3"
+                              className="group bg-blue-50 relative shadow-lg hover:shadow-2xl transition-all duration -300 ease-in-out transform hover:scale-105 border border-gray-300 text-xl rounded-xl mb-2  p-4 cursor-pointer"
                             >
-                              <span className="capitalize font-medium text-gray-600">
-                                {key.replace(/([A-Z])/g, " $1")}
+                              <span className="capitalize font-medium text-gray-600 ">
+                                {key.replace(/([A-Z])/g, " $1")}:
                               </span>
-                              <span className="font-medium text-gray-800">
+                              <span className="px-3 font-medium text-gray-800 ">
                                 {value?.toString() || "—"}
                               </span>
                             </div>

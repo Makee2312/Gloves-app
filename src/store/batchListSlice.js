@@ -1,11 +1,14 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { dbContext } from "../db/dbContext"; // Adjust import path
-import stepConfig from "../components/BatchLatextCreationForm";
+import { dbContext } from "../db/dbContext"; 
+import { format } from 'date-fns';
+
 export const fetchBatchList = createAsyncThunk("batchList/fetch", async () => {
   const batchLs = await dbContext.settings.get(1);
   //console.log(batchLs);
   return batchLs;
 });
+const now = new Date();
+const savedDate = format(now, 'dd-MM-yyyy HH:mm:ss');
 const stepsTemplate = [
   { processType: "latexPreparation", data: {}, photo: null, saved: false },
   { processType: "formerPreparation", data: {}, photo: null, saved: false },
@@ -45,6 +48,7 @@ const batchListSlice = createSlice({
           data: formData,
           photo,
           saved: true,
+          saved_date:savedDate,
         };
       }
       if (
@@ -58,7 +62,7 @@ const batchListSlice = createSlice({
           data: formData,
           photo,
           saved: true,
-          saved_date:Date(),
+          saved_date: savedDate ,
         };
       }
     },
@@ -73,7 +77,6 @@ const batchListSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(fetchBatchList.fulfilled, (state, action) => {
-      console.log(action.payload);
       return (state = action.payload.data);
     });
   },
