@@ -193,15 +193,15 @@ export default function BatchProgress() {
             </button>
 
             {expandedBatch === currentBatch.gloveBatchId && (
-              <div className="mt-4 border-t  border-gray-200 pt-3 space-y-3 animate-fadeIn">
+              <div className="mt-8 mb-8  border-gray-200 px-auto py-auto pb-auto pt-auto space-y-3 animate-fadeIn">
                 {currentBatch.steps.map((step, idx) => {
                   const status = step.saved ? "Completed" : "Not Saved";
                   return (
-                    <div className="text-xl rounded-lg  border py-3 px-5 border-gray-200">
+                    <div className=" text-xl rounded-lg relative shadow-sm hover:shadow-lg transition-all duration -300 ease-in-out transform hover:scale-105 overflow-hidden border px-3 py-2 border-gray-300 cursor-pointer">
                     <div
                       key={idx}
                       className={`text-xl p-3 py-3 ${step.saved
-                          ? " text-green-700"
+                          ? " text-green-600"
                           : " text-gray-600"
                         }`}
                     > 
@@ -219,7 +219,7 @@ export default function BatchProgress() {
                           {Object.entries(step.data).map(([key, value], i) => (
                             <div
                               key={i}
-                              className="group bg-blue-50 relative shadow-lg hover:shadow-2xl transition-all duration -300 ease-in-out transform hover:scale-105 border border-gray-300 text-xl rounded-xl mb-2  p-4 cursor-pointer"
+                              className="group bg-teal-50 relative shadow-lg hover:shadow-2xl transition-all duration -300 ease-in-out transform hover:scale-105 border border-gray-300 text-xl rounded-xl mb-2  p-4 cursor-pointer"
                             >
                               <span className="capitalize font-medium text-gray-600 ">
                                 {key.replace(/([A-Z])/g, " $1")}:

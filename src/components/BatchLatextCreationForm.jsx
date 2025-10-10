@@ -17,8 +17,6 @@ const stepsConfig = [
     processValidations: "formerPreparation",
   },
   { key: "leaching", title: "Leaching", processValidations: "leaching" },
-  { key:"drying",title:"drying",processValidations:"drying"},
-  {key:"curing",title:"curing",processValidations:"curing"},
   { key: "finishing", title: "Finishing", processValidations: "finishing" },
 ];
 
