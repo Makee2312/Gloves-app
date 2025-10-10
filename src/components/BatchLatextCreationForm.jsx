@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { updateStep, completeBatch } from "../store/batchListSlice";
+import { updateStep, markAsQCBatch } from "../store/batchListSlice";
 import { processValidations } from "../config/rules";
 import { processVariables } from "../config/variables";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -167,7 +167,7 @@ export default function BatchLatexCreationForm({ onBack }) {
         return;
       }
 
-      dispatch(completeBatch(activeBatch.gloveBatchId));
+      dispatch(markAsQCBatch(activeBatch.gloveBatchId));
       setModalErrors([]);
       setModalSuccess("🎉 Batch completed successfully!");
       setShowModal(true);

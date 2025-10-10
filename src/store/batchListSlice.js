@@ -61,12 +61,37 @@ const batchListSlice = createSlice({
         };
       }
     },
-    completeBatch(state, action) {
+    markAsQCBatch(state, action) {
       const batchId = action.payload;
       const batch = state.batchLs.find((b) => b.gloveBatchId === batchId);
       if (batch) batch.status = "In QC";
       if (state.activeBatch && state.activeBatch.gloveBatchId === batchId) {
         state.activeBatch.status = "In QC";
+      }
+    },
+    updateQCBatch(state, action) {
+      const { batchId, qcResultData, photo } = action.payload;
+      const batch = state.batchLs.find((b) => b.gloveBatchId === batchId);
+      if (batch && batch.steps && batch.steps[4]) {
+        batch.steps[4] = {
+          ...batch.steps[4],
+          data: qcResultData,
+          photo,
+          saved: true,
+        };
+      }
+      if (
+        state.activeBatch &&
+        state.activeBatch.gloveBatchId === batchId &&
+        state.activeBatch.steps &&
+        state.activeBatch.steps[4]
+      ) {
+        state.activeBatch.steps[4] = {
+          ...batch.steps[4],
+          data: qcResultData,
+          photo,
+          saved: true,
+        };
       }
     },
   },
@@ -78,6 +103,12 @@ const batchListSlice = createSlice({
   },
 });
 
-export const { add, remove, setActiveBatch, updateStep, completeBatch } =
-  batchListSlice.actions;
+export const {
+  add,
+  remove,
+  setActiveBatch,
+  updateStep,
+  markAsQCBatch,
+  updateQCBatch,
+} = batchListSlice.actions;
 export default batchListSlice.reducer;
