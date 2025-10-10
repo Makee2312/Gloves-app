@@ -64,56 +64,147 @@ export const processVariables = {
   ],
 
   testingAndPackaging: [
-    // Visual inspection
     {
-      name: "Visual Inspection Method",
-      metric: "type",
-      key: "visualInspectionMethod",
-    }, // Manual/Automated
-    { name: "Defect Type", metric: "text", key: "defectType" },
-    { name: "Defect Count", metric: "count", key: "visualDefectCount" },
-
-    // Water-tightness test
-    {
-      name: "Water-Tightness Test (AQL)",
-      metric: "AQL",
-      key: "waterTightnessAql",
-    },
-    { name: "Pass Count", metric: "count", key: "waterTightnessPassCount" },
-    { name: "Fail Count", metric: "count", key: "waterTightnessFailCount" },
-
-    // Physical property tests
-    { name: "Force at Break", metric: "N", key: "forceAtBreak" },
-    { name: "Elongation at Break", metric: "%", key: "elongationAtBreak" },
-    { name: "Tensile Strength", metric: "MPa", key: "tensileStrength" },
-
-    // Dimensional tests
-    { name: "Length", metric: "mm", key: "gloveLength" },
-    { name: "Palm Width", metric: "mm", key: "palmWidth" },
-    { name: "Thickness", metric: "mm", key: "gloveThickness" },
-
-    // Sterility test
-    {
-      name: "Sterility Test Result",
-      metric: "pass/fail",
-      key: "sterilityResult",
+      type: "Visual inspection",
+      values: [
+        // Visual inspection
+        {
+          name: "Visual Inspection Method",
+          metric: "type",
+          key: "visualInspectionMethod",
+          type: "text",
+        }, // Manual/Automated
+        {
+          name: "Defect Type",
+          metric: "text",
+          key: "defectType",
+          type: "text",
+        },
+        {
+          name: "Defect Count",
+          metric: "count",
+          key: "visualDefectCount",
+          type: "number",
+        },
+      ],
     },
 
-    // Biocompatibility test
     {
-      name: "Biocompatibility Result",
-      metric: "pass/fail",
-      key: "biocompatibilityResult",
+      type: " Water-tightness test",
+      values: [
+        {
+          name: "Water-Tightness Test (AQL)",
+          metric: "AQL",
+          key: "waterTightnessAql",
+          type: "number",
+        },
+        {
+          name: "Pass Count",
+          metric: "count",
+          key: "waterTightnessPassCount",
+          type: "number",
+        },
+        {
+          name: "Fail Count",
+          metric: "count",
+          key: "waterTightnessFailCount",
+          type: "number",
+        },
+      ],
+    },
+    {
+      type: "Physical property tests",
+      values: [
+        //
+        {
+          name: "Force at Break",
+          metric: "N",
+          key: "forceAtBreak",
+          type: "number",
+        },
+        {
+          name: "Elongation at Break",
+          metric: "%",
+          key: "elongationAtBreak",
+          type: "number",
+        },
+        {
+          name: "Tensile Strength",
+          metric: "MPa",
+          key: "tensileStrength",
+          type: "number",
+        },
+      ],
     },
 
-    // Packaging data
-    { name: "Batch Number", metric: "text", key: "batchNumber" },
-    { name: "Test Results Summary", metric: "text", key: "testResultsSummary" },
-    { name: "Packing Date", metric: "date", key: "packingDate" },
     {
-      name: "Sterilization Details",
-      metric: "text",
-      key: "sterilizationDetails",
+      type: "Dimensional tests",
+      values: [
+        { name: "Length", metric: "mm", key: "gloveLength", type: "number" },
+        { name: "Palm Width", metric: "mm", key: "palmWidth", type: "number" },
+        {
+          name: "Thickness",
+          metric: "mm",
+          key: "gloveThickness",
+          type: "number",
+        },
+      ],
+    },
+
+    {
+      type: "Sterility test",
+      values: [
+        {
+          name: "Sterility Test Result",
+          metric: "pass/fail",
+          key: "sterilityResult",
+          type: "bool",
+        },
+      ],
+    },
+
+    {
+      type: "Biocompatibility test",
+      values: [
+        {
+          name: "Biocompatibility Result",
+          metric: "pass/fail",
+          key: "biocompatibilityResult",
+          type: "bool",
+        },
+      ],
+    },
+
+    //
+    {
+      type: "Packaging data",
+      values: [
+        {
+          name: "Batch Number",
+          metric: "text",
+          key: "batchNumber",
+          type: "text",
+        },
+        {
+          name: "Test Results Summary",
+          metric: "text",
+          key: "testResultsSummary",
+          type: "text",
+        },
+        {
+          name: "Packing Date",
+          metric: "date",
+          key: "packingDate",
+          type: "text",
+        },
+        {
+          name: "Sterilization Details",
+          metric: "text",
+          key: "sterilizationDetails",
+          type: "text",
+        },
+        { name: "Comments", metric: "text", key: "comments", type: "text" },
+      ],
     },
   ],
 };

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { updateStep, completeBatch } from "../store/batchListSlice";
+import { updateStep, markAsQCBatch } from "../store/batchListSlice";
 import { processValidations } from "../config/rules";
 import { processVariables } from "../config/variables";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -17,6 +17,8 @@ const stepsConfig = [
     processValidations: "formerPreparation",
   },
   { key: "leaching", title: "Leaching", processValidations: "leaching" },
+  { key:"drying",title:"drying",processValidations:"drying"},
+  {key:"curing",title:"curing",processValidations:"curing"},
   { key: "finishing", title: "Finishing", processValidations: "finishing" },
 ];
 
@@ -113,6 +115,7 @@ export default function BatchLatexCreationForm({ onBack }) {
   function handleStepSave(formData, form, photo) {
     console.log(form);
     if (!activeBatch) return;
+
     const errors = validateStep(stepIdx, form);
     if (errors.length > 0) {
       setModalErrors(errors);
@@ -158,16 +161,16 @@ export default function BatchLatexCreationForm({ onBack }) {
         ),
       };
 
-      const errors = validateAllSteps(mergedBatch);
-      if (errors.length > 0) {
-        setModalErrors(errors);
-        setModalSuccess("");
-        setShowModal(true);
-        setStepIdx(errors[0].stepIndex);
-        return;
-      }
+      // const errors = validateAllSteps(mergedBatch);
+      // if (errors.length > 0) {
+      //   setModalErrors(errors);
+      //   setModalSuccess("");
+      //   setShowModal(true);
+      //   setStepIdx(errors[0].stepIndex);
+      //   return;
+      // }
 
-      dispatch(completeBatch(activeBatch.gloveBatchId));
+      dispatch(markAsQCBatch(activeBatch.gloveBatchId));
       setModalErrors([]);
       setModalSuccess("🎉 Batch completed successfully!");
       setShowModal(true);
@@ -374,7 +377,7 @@ function StepForm({
     setError("");
   }, [data, photo, stepIndex]);
 
-  const vars = processVariables[step.processValidations] || [];
+  const vars = processVariables[step?.processValidations] || [];
 
   function handleChange(e, key) {
     if (stepSaved || batchLocked) return;
@@ -417,7 +420,6 @@ function StepForm({
       onSave(formatData, form, img);
     }, 450);
   }
-
   return (
     <form
       onSubmit={handleSubmit}
@@ -433,8 +435,12 @@ function StepForm({
             <label className="text-md font-medium text-gray-700">
               {v.name}
               <span className="text-gray-400 text-xs ml-2">
-                ({processValidations[step.processValidations]?.[v.key]?.min ?? "—"} -{" "}
-                {processValidations[step.processValidations]?.[v.key]?.max ?? "—"}{" "}
+                (
+                {processValidations[step.processValidations]?.[v.key]?.min ??
+                  "—"}{" "}
+                -{" "}
+                {processValidations[step.processValidations]?.[v.key]?.max ??
+                  "—"}{" "}
                 {v.metric})
               </span>
             </label>
