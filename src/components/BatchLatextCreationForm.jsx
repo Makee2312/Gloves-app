@@ -17,8 +17,6 @@ const stepsConfig = [
     processValidations: "formerPreparation",
   },
   { key: "leaching", title: "Leaching", processValidations: "leaching" },
-  { key: "drying", title: "drying", processValidations: "drying" },
-  { key: "curing", title: "curing", processValidations: "curing" },
   { key: "finishing", title: "Finishing", processValidations: "finishing" },
 ];
 
@@ -252,7 +250,7 @@ export default function BatchLatexCreationForm({ onBack }) {
       <div className="w-full max-w-6xl mx-auto bg-white rounded-xl shadow-lg p-6 space-y-6">
         {/* Batch header */}
         <div className="sticky top-3 z-10 bg-white p-3 rounded-lg shadow-sm border border-blue-50 text-center">
-          <span className="text-xs font-bold uppercase text-blue-700">
+          <span className="text-md font-bold uppercase text-blue-700">
             Batch:
           </span>
           <span className="text-base font-bold ml-2">
@@ -260,7 +258,7 @@ export default function BatchLatexCreationForm({ onBack }) {
           </span>
         </div>
 
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex text-md items-center justify-between gap-3">
           {stepsConfig.map((s, idx) => {
             const completed = !!activeBatch?.steps?.[idx]?.saved;
             const active = idx === stepIdx;
@@ -286,7 +284,7 @@ export default function BatchLatexCreationForm({ onBack }) {
                   {idx + 1}
                 </div>
                 <div
-                  className={`mt-2 text-xs text-center font-medium ${
+                  className={`mt-2 text-md text-center font-medium ${
                     completed
                       ? "text-green-600"
                       : active
@@ -379,7 +377,7 @@ function StepForm({
 
   const vars = processVariables[step?.processValidations] || [];
 
-  function handleChange(e, key, metric) {
+  function handleChange(e, key) {
     if (stepSaved || batchLocked) return;
     setForm((f) => ({ ...f, [key]: `${e.target.value}` }));
   }
@@ -409,7 +407,6 @@ function StepForm({
     setTimeout(() => {
       setSaving(false);
       setError("");
-      console.log(form);
       const formatData = Object.fromEntries(
         new Map(
           vars.map((v) => [
@@ -418,7 +415,6 @@ function StepForm({
           ])
         )
       );
-      console.log(formatData);
       onSave(formatData, form, img);
     }, 450);
   }
@@ -434,7 +430,7 @@ function StepForm({
       <div className="grid grid-cols-1 gap-4">
         {vars.map((v) => (
           <div key={v.key} className="flex flex-col space-y-1">
-            <label className="text-sm font-medium text-gray-700">
+            <label className="text-md font-medium text-gray-700">
               {v.name}
               <span className="text-gray-400 text-xs ml-2">
                 (
@@ -461,7 +457,7 @@ function StepForm({
       </div>
 
       <div className="mt-3">
-        <label className="text-sm font-medium text-gray-700">
+        <label className="text-md font-medium text-gray-700">
           Upload Photo (optional)
         </label>
         <input
