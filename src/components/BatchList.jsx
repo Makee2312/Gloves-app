@@ -5,10 +5,22 @@ import { useDispatch } from "react-redux";
 import { setActiveBatch } from "../store/batchListSlice";
 
 function getBatchStatus(batch) {
+  return batch.status ?? batch.status !== ""
+    ? batch.status
+    : steps[0]?.saved === true
+    ? "In progress"
+    : "Yet to start";
   const steps = batch.steps || [];
+  console.log(steps);
   if (steps.length === 0) return "Yet to start";
-  const allSaved = steps.every((step) => step.saved === true);
+  const allSaved = steps.every(
+    (step) => step.processType === "qc" && Object.entries(step.data).length > 0
+  );
   if (allSaved) return "Completed";
+  const gloveSaved = steps.every(
+    (step) => step.processType === "qc" || step.saved === true
+  );
+  if (gloveSaved) return "In QC";
   if (steps[0]?.saved === true) return "In progress";
   return "Yet to start";
 }
@@ -73,6 +85,8 @@ export default function BatchList({ batchList }) {
                 ? "bg-red-100 text-red-700"
                 : batch.derivedStatus === "In progress"
                 ? "bg-yellow-100 text-yellow-700"
+                : batch.derivedStatus === "In QC"
+                ? "bg-pink-200 text-pink-700"
                 : "bg-gray-100 text-gray-700"
             }`}
                   >

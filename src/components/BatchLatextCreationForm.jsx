@@ -40,7 +40,9 @@ export default function BatchLatexCreationForm({ onBack }) {
       onBack && onBack();
       return;
     }
-    const idx = (activeBatch.steps || []).findIndex((s) => !s.saved);
+    const idx = (activeBatch.steps || []).findIndex(
+      (s) => s.processType != "qc" && !s.saved
+    );
     setStepIdx(idx === -1 ? stepsConfig.length - 1 : idx);
   }, [activeBatch, onBack]);
 
@@ -148,6 +150,7 @@ export default function BatchLatexCreationForm({ onBack }) {
       })
     );
 
+    dispatch(markAsQCBatch(activeBatch.gloveBatchId));
     setTimeout(() => {
       const latestBatch =
         batchList.find((b) => b.gloveBatchId === activeBatch.gloveBatchId) ||
@@ -167,8 +170,6 @@ export default function BatchLatexCreationForm({ onBack }) {
       //   setStepIdx(errors[0].stepIndex);
       //   return;
       // }
-
-      dispatch(markAsQCBatch(activeBatch.gloveBatchId));
       setModalErrors([]);
       setModalSuccess("🎉 Batch completed successfully!");
       setShowModal(true);

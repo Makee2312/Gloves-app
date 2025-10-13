@@ -11,6 +11,7 @@ export default function CustomDropdown({
   const handleSelect = (value) => {
     setSelected(value);
     setOpen(false);
+    console.log(value);
     if (selected) onSelect(value);
   };
   return (

@@ -43,6 +43,7 @@ const batchListSlice = createSlice({
       const { batchId, stepIdx, formData, photo } = action.payload;
       const batch = state.batchLs.find((b) => b.gloveBatchId === batchId);
       if (batch && batch.steps && batch.steps[stepIdx]) {
+        batch.status = "In progress";
         batch.steps[stepIdx] = {
           ...batch.steps[stepIdx],
           data: formData,
@@ -57,6 +58,7 @@ const batchListSlice = createSlice({
         state.activeBatch.steps &&
         state.activeBatch.steps[stepIdx]
       ) {
+        state.activeBatch.status = "In progress";
         state.activeBatch.steps[stepIdx] = {
           ...batch.steps[stepIdx],
           data: formData,
@@ -75,7 +77,7 @@ const batchListSlice = createSlice({
       }
     },
     updateQCBatch(state, action) {
-      const { batchId, qcResultData, photo } = action.payload;
+      const { batchId, qcResultData, photo, saved } = action.payload;
       const batchIndex = state.batchLs.findIndex(
         (b) => b.gloveBatchId === batchId
       );
@@ -85,8 +87,11 @@ const batchListSlice = createSlice({
           batch.steps[4] = {
             ...batch.steps[4],
             data: qcResultData,
-            saved: true,
+            saved: saved,
           };
+        }
+        if (saved) {
+          batch.status = "Completed";
         }
         state.batchLs[batchIndex] = batch;
       }

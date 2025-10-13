@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import gloveBatches from "../config/defaultBatch";
 import { add } from "../store/batchListSlice";
 import { useBatchData } from "../hooks/useBatchData";
+import { useSelector } from "react-redux";
 
 const stepsTemplate = [
   { data: {}, photo: null, saved: false }, // compoundPrep
@@ -11,22 +12,19 @@ const stepsTemplate = [
 ];
 
 export default function BottomDrawer({ open, setOpen }) {
-  const { batches, loading, fetchBatches, addBatch } = useBatchData();
+  const batchesList = useSelector((state) => state.batchList);
+  const { loading, fetchBatches, addBatch } = useBatchData();
   const today = new Date();
   const [batchData, setBatchData] = useState({});
 
   useEffect(() => {
-    if (batches == null) {
-      fetchBatches();
-    }
-
     setBatchData({
       ...gloveBatches,
       gloveBatchId:
-        batches == null || batches.batchLs == null
+        batchesList == null || batchesList.batchLs == null
           ? 110001
-          : batches.batchLs.length > 0
-          ? batches.batchLs[batches.batchLs.length - 1].gloveBatchId + 1
+          : batchesList.batchLs.length > 0
+          ? batchesList.batchLs[batchesList.batchLs.length - 1].gloveBatchId + 1
           : 10001,
       status: "Yet to start",
       createdDate: today.toLocaleDateString("en-IN"),

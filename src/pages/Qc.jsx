@@ -1,4 +1,4 @@
-import { processVariables } from "../config/variables";
+import { getVariableNameByKey, processVariables } from "../config/variables";
 import { processValidations } from "../config/rules";
 import CustomDropdown from "../reusables/CustomDropdown";
 import { useEffect, useState } from "react";
@@ -20,6 +20,7 @@ export default function Qc() {
   const batchesList = useSelector((state) => state.batchList.batchLs);
   const [activeBatch, setActiveBatch] = useState();
   const [modalErrors, setModalErrors] = useState([]);
+  const [modalSuccess, setModalSuccess] = useState("");
   // ✅ Initialize steps properly
   const [qcResultData, setQcResultData] = useState(
     qcVariables.map((qc) => ({
@@ -35,20 +36,23 @@ export default function Qc() {
 
   useEffect(() => {
     if (activeBatch && activeBatch != 0 && batchesList) {
-      const existingData =
-        batchesList
-          .find((batch) => batch.gloveBatchId == activeBatch)
-          .steps.find((step) => step.processType == "qc").data ??
-        qcVariables.map((qc) => ({
-          type: qc.type,
-          results:
-            qc.type === "Visual inspection"
-              ? { visualInspectionMethod: "" }
-              : null,
-        }));
-      if (existingData) {
-        setQcResultData(existingData);
-        const nextMeasurementStep = existingData.findIndex(
+      const existingData = batchesList
+        .find((batch) => batch.gloveBatchId === activeBatch)
+        ?.steps.find((step) => step.processType === "qc");
+
+      const qcData =
+        !existingData?.data ||
+        (typeof existingData.data === "object" &&
+          Object.keys(existingData.data).length === 0)
+          ? qcVariables.map((qc) => ({
+              type: qc.type,
+              results: null,
+            }))
+          : existingData.data;
+
+      if (qcData) {
+        setQcResultData(qcData);
+        const nextMeasurementStep = (qcData || []).findIndex(
           (result) => result.results == null || result.results == {}
         );
         console.log("Updated index:", nextMeasurementStep);
@@ -67,8 +71,6 @@ export default function Qc() {
         }
       }
     }
-
-    console.log(qcResultData);
   }, [activeBatch]);
 
   // ✅ Fixed handleSubmit logic
@@ -81,6 +83,7 @@ export default function Qc() {
       setShowModal(true);
       return;
     }
+
     setQcResultData((prevSteps) => {
       const UpdatedSteps = [...prevSteps];
       UpdatedSteps[activeStep] = { ...UpdatedSteps[activeStep], results: form };
@@ -92,6 +95,7 @@ export default function Qc() {
           batchId: activeBatch,
           qcResultData: UpdatedSteps,
           photo: null,
+          saved: activeStep == UpdatedSteps.length - 1,
         })
       );
       const nextMeasurementStep = UpdatedSteps.findIndex(
@@ -100,8 +104,16 @@ export default function Qc() {
       console.log("Updated index:", nextMeasurementStep);
       if (nextMeasurementStep < UpdatedSteps.length - 1) {
         setActiveStep(nextMeasurementStep);
-      } else {
-        navigate("/");
+      } else if (
+        nextMeasurementStep > UpdatedSteps.length - 1 ||
+        nextMeasurementStep == -1
+      ) {
+        showModal(true);
+        setModalSuccess("🎉 Batch completed successfully!");
+        setTimeout(() => {
+          setShowModal(false);
+          navigate("/");
+        }, 1400);
       }
       setForm({});
       return UpdatedSteps;
@@ -187,7 +199,7 @@ export default function Qc() {
               <div className="text-center py-6">
                 <div className="text-4xl mb-3 text-green-600">🎉</div>
                 <div className="text-lg font-semibold text-green-700">
-                  Saved successfully
+                  {modalSuccess}
                 </div>
               </div>
             )}
@@ -247,11 +259,17 @@ export default function Qc() {
                   qcResultData[index].results != {} &&
                   qcResultData[index].results != null &&
                   activeStep != index
-                    ? "flex text-center justify-center "
+                    ? "flex  items-center"
                     : ""
                 }
               >
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                <div
+                  className={`${
+                    activeStep === index
+                      ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"
+                      : "w-full justify-between items-center"
+                  }`}
+                >
                   {activeStep === index ? (
                     variable.values.map((value) => (
                       <div key={value.key} className="block my-2">
@@ -275,15 +293,15 @@ export default function Qc() {
                         {value.type === "bool" ? (
                           <CustomDropdown
                             items={
-                              qcRules?.[value.key]?.allowed || ["Yes", "No"]
+                              qcRules?.[value.key]?.allowed ?? ["Yes", "No"]
                             }
-                            onSelect={(selected) =>
+                            onSelect={(selected) => {
                               setForm((prev) => ({
                                 ...prev,
                                 [value.key]: selected,
-                              }))
-                            }
-                            placeHolder={form[value.key]}
+                              }));
+                            }}
+                            placeHolder={form[value.key] ?? "Select"}
                           />
                         ) : (
                           <input
@@ -304,13 +322,31 @@ export default function Qc() {
                       </div>
                     ))
                   ) : (
-                    <div className="text-gray-500 text-sm italic">
-                      {qcResultData[index].results != {} &&
-                      qcResultData[index].results != null &&
-                      activeStep != index ? (
-                        <div>{JSON.stringify(qcResultData[index].results)}</div>
+                    <div className=" text-sm mt-2">
+                      {qcResultData[index]?.results &&
+                      Object.keys(qcResultData[index].results).length > 0 &&
+                      activeStep !== index ? (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-green-50 dark:bg-green-400 p-3 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm transition-all duration-300">
+                          {Object.entries(qcResultData[index].results).map(
+                            ([key, value]) => (
+                              <div
+                                key={key}
+                                className="flex flex-col sm:flex-row sm:items-center justify-between bg-green-100 dark:bg-green-900 rounded-lg p-2 px-3 hover:shadow-md transition"
+                              >
+                                <span className="font-medium text-gray-700 dark:text-gray-300">
+                                  {getVariableNameByKey(key)}:
+                                </span>
+                                <span className="text-gray-500 dark:text-gray-400 mt-1 sm:mt-0">
+                                  {value ?? "-"}
+                                </span>
+                              </div>
+                            )
+                          )}
+                        </div>
                       ) : (
-                        "Yet to test"
+                        <div className="italic text-gray-400 text-center py-2">
+                          Yet to test
+                        </div>
                       )}
                     </div>
                   )}
@@ -319,7 +355,7 @@ export default function Qc() {
                 qcResultData[index].results != null &&
                 activeStep != index ? (
                   <BiEdit
-                    className="text-right text-2xl"
+                    className="text-right text-2xl ml-2"
                     onClick={() => {
                       setActiveStep(index);
                       setForm({});

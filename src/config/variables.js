@@ -208,3 +208,29 @@ export const processVariables = {
     },
   ],
 };
+
+export function getVariableNameByKey(key) {
+  // Loop through all process categories (latexPreparation, curing, etc.)
+  for (const processType in processVariables) {
+    const variables = processVariables[processType];
+
+    // Case 1: Simple array (e.g. latexPreparation, curing)
+    if (Array.isArray(variables) && variables.length && variables[0].key) {
+      const match = variables.find((v) => v.key === key);
+      if (match) return match.name;
+    }
+
+    // Case 2: Complex "testingAndPackaging" array with nested 'values'
+    if (Array.isArray(variables)) {
+      for (const sub of variables) {
+        if (sub.values) {
+          const match = sub.values.find((v) => v.key === key);
+          if (match) return match.name;
+        }
+      }
+    }
+  }
+
+  // If not found
+  return null;
+}
