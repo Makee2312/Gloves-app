@@ -12,6 +12,8 @@ export default function BatchProgress() {
   const [filteredBatches, setFilteredBatches] = useState([]);
   const [focusedIndex, setFocusedIndex] = useState(-1);
 
+
+
   useEffect(() => {
     dispatch(fetchBatchList());
   }, [dispatch]);
@@ -31,9 +33,13 @@ export default function BatchProgress() {
     }
   }, [searchTerm, batches]);
 
+
+
   const currentBatch = batches.find(
     (b) => b.gloveBatchId === selectedBatch
   );
+
+
 
   const handleSelect = (batchId) => {
     setSelectedBatch(batchId);
@@ -97,8 +103,8 @@ export default function BatchProgress() {
                     key={batch.gloveBatchId}
                     onClick={() => handleSelect(batch.gloveBatchId)}
                     className={`block w-full text-left px-4 py-2 text-sm ${focusedIndex === index
-                        ? "bg-blue-100"
-                        : "hover:bg-blue-50"
+                      ? "bg-blue-100"
+                      : "hover:bg-blue-50"
                       } ${selectedBatch === batch.gloveBatchId
                         ? "font-semibold text-blue-700"
                         : "text-gray-700"
@@ -143,10 +149,10 @@ export default function BatchProgress() {
                 return (
                   <span
                     className={`text-xs px-2 py-1 rounded-full font-semibold ${percent === 100
-                        ? "bg-green-100 text-green-700"
-                        : percent > 0
-                          ? "bg-yellow-100 text-yellow-700"
-                          : "bg-gray-100 text-gray-600"
+                      ? "bg-green-100 text-green-700"
+                      : percent > 0
+                        ? "bg-yellow-100 text-yellow-700"
+                        : "bg-gray-100 text-gray-600"
                       }`}
                   >
                     {percent === 100
@@ -163,13 +169,13 @@ export default function BatchProgress() {
             <div className="mt-4 h-2 bg-gray-100 rounded-full overflow-hidden">
               <div
                 className={`h-2 rounded-full transition-all ${currentBatch.steps?.filter((s) => s.saved)?.length ===
-                    currentBatch.steps?.length
-                    ? "bg-green-400"
-                    : "bg-yellow-300"
+                  currentBatch.steps?.length
+                  ? "bg-green-400"
+                  : "bg-yellow-300"
                   }`}
                 style={{
                   width: `${((currentBatch.steps?.filter((s) => s.saved)?.length || 0) /
-                      (currentBatch.steps?.length || 1)) *
+                    (currentBatch.steps?.length || 1)) *
                     100
                     }%`,
                 }}
@@ -197,34 +203,36 @@ export default function BatchProgress() {
                 {currentBatch.steps.map((step, idx) => {
                   const status = step.saved ? "Completed" : "Not Saved";
                   return (
-                    <div className=" text-xl rounded-lg relative shadow-sm hover:shadow-lg transition-all duration -300 ease-in-out transform hover:scale-105 overflow-hidden border px-3 py-2 border-gray-300 cursor-pointer">
                     <div
-                      key={idx}
-                      className={`text-xl p-3 py-3 ${step.saved
-                          ? " text-green-600"
-                          : " text-gray-600"
-                        }`}
-                    > 
-                      <div className="flex justify-between">
-                        <p className="font-medium">Step {idx + 1}<br/>
-                        {step.processType.toUpperCase()}</p>
-
-                        <p className="text-xl font-medium italic">{status}<br/>
-                        {step.saved_date}</p>
+                      key={idx}   // ✅ key at top-level
+                      className="text-sm rounded-lg relative shadow-sm hover:shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105 overflow-hidden border px-3 py-2 border-gray-300 cursor-pointer"
+                    >
+                      <div className={`text-sm p-3 ${step.saved ? "text-green-600" : "text-gray-600"}`}>
+                        <div className="flex justify-between">
+                          <p className="font-medium">
+                            Step {idx + 1}
+                            <br />
+                            {step.processType.toUpperCase()}
+                          </p>
+                          <p className="text-sm font-medium italic">
+                            {status}
+                            <br />
+                            {step.saved_date}
+                          </p>
+                        </div>
                       </div>
-                      </div>
-
+                      {/* inner data map */}
                       {step.data && (
                         <div className="mt-1 mb-2 ml-1 mr-1 grid grid-flow-row-dense sm:grid-cols-2 gap-3 text-medium text-gray-700 px-2">
-                          {Object.entries(step.data).map(([key, value], i) => (
+                          {Object.entries(step.data).map(([key, value]) => (
                             <div
-                              key={i}
-                              className="group bg-teal-50 relative shadow-lg hover:shadow-2xl transition-all duration -300 ease-in-out transform hover:scale-105 border border-gray-300 text-xl rounded-xl mb-2  p-4 cursor-pointer"
+                              key={`${step.processType}-${key}`} // ✅ unique per data item
+                              className="group bg-teal-50 relative shadow-lg hover:shadow-2xl transition-all duration-300 ease-in-out transform hover:scale-105 border border-gray-300 text-sm rounded-xl mb-2 p-4 cursor-pointer"
                             >
-                              <span className="capitalize font-medium text-gray-600 ">
+                              <span className="capitalize font-medium text-gray-600">
                                 {key.replace(/([A-Z])/g, " $1")}:
                               </span>
-                              <span className="px-3 font-medium text-gray-800 ">
+                              <span className="px-3 font-medium text-gray-800">
                                 {value?.toString() || "—"}
                               </span>
                             </div>
