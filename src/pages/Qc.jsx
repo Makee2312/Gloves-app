@@ -33,6 +33,44 @@ export default function Qc() {
   const [activeStep, setActiveStep] = useState(0);
   const [showModal, setShowModal] = useState(false);
 
+  useEffect(() => {
+    if (activeBatch && activeBatch != 0 && batchesList) {
+      const existingData =
+        batchesList
+          .find((batch) => batch.gloveBatchId == activeBatch)
+          .steps.find((step) => step.processType == "qc").data ??
+        qcVariables.map((qc) => ({
+          type: qc.type,
+          results:
+            qc.type === "Visual inspection"
+              ? { visualInspectionMethod: "" }
+              : null,
+        }));
+      if (existingData) {
+        setQcResultData(existingData);
+        const nextMeasurementStep = existingData.findIndex(
+          (result) => result.results == null || result.results == {}
+        );
+        console.log("Updated index:", nextMeasurementStep);
+        if (nextMeasurementStep <= qcResultData.length - 1) {
+          setActiveStep(nextMeasurementStep == -1 ? 0 : nextMeasurementStep);
+        }
+        if (nextMeasurementStep == qcResultData.length - 1) {
+          // setForm({});
+          // console.log(qcResultData);
+          // Object.entries(qcResultData[nextMeasurementStep].results).map(
+          //   ([key, value]) => {
+          //     form[key] = value;
+          //   }
+          // );
+          // setForm(form);
+        }
+      }
+    }
+
+    console.log(qcResultData);
+  }, [activeBatch]);
+
   // ✅ Fixed handleSubmit logic
   function handleSubmit(e) {
     e.preventDefault();
@@ -42,34 +80,32 @@ export default function Qc() {
       setModalErrors(errors);
       setShowModal(true);
       return;
-    } else {
-      setModalErrors([]);
-      setShowModal(false);
     }
     setQcResultData((prevSteps) => {
       const UpdatedSteps = [...prevSteps];
       UpdatedSteps[activeStep] = { ...UpdatedSteps[activeStep], results: form };
+
+      console.log(form);
+      console.log(UpdatedSteps[activeStep]);
+      dispatch(
+        updateQCBatch({
+          batchId: activeBatch,
+          qcResultData: UpdatedSteps,
+          photo: null,
+        })
+      );
+      const nextMeasurementStep = UpdatedSteps.findIndex(
+        (result) => result.results == null || result.results == {}
+      );
+      console.log("Updated index:", nextMeasurementStep);
+      if (nextMeasurementStep < UpdatedSteps.length - 1) {
+        setActiveStep(nextMeasurementStep);
+      } else {
+        navigate("/");
+      }
+      setForm({});
       return UpdatedSteps;
     });
-    console.log(qcResultData);
-    setForm({});
-
-    dispatch(
-      updateQCBatch({
-        batchId: 10001,
-        qcResultData: qcResultData,
-        photo: null,
-      })
-    );
-    const nextMeasurementStep = qcResultData.findIndex(
-      (result) => result.results == null || result.results == {}
-    );
-    if (nextMeasurementStep < qcResultData.length - 1) {
-      setActiveStep(nextMeasurementStep);
-    } else {
-      navigate("/");
-    }
-    console.log("Updated Steps:", qcResultData);
   }
 
   function validateStep() {
@@ -80,6 +116,7 @@ export default function Qc() {
     const variables = qcVariables.find((qcVar) => qcVar.type == step.type);
     console.log(variables);
     for (const v of variables.values) {
+      console.log(form);
       const raw = form[v.key];
       const isMissing =
         raw === undefined || raw === null || String(raw).trim() === "";
@@ -92,7 +129,11 @@ export default function Qc() {
       if (qcRules[v.key]) {
         const { min, max } = qcRules[v.key];
         const num = Number(raw);
-        if (Number.isNaN(num) || num < min || num > max) {
+        if (
+          min != undefined &&
+          max != undefined &&
+          (Number.isNaN(num) || num < min || num > max)
+        ) {
           errors.push({
             message: `${v.name} must be between ${min} and ${max} ${v.metric}.`,
           });
@@ -289,8 +330,6 @@ export default function Qc() {
                         }
                       );
                       setForm(form);
-                      console.log(form);
-                      console.log(qcResultData);
                     }}
                   />
                 ) : null}

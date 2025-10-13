@@ -58,7 +58,7 @@ const batchListSlice = createSlice({
           data: formData,
           photo,
           saved: true,
-          saved_date:Date(),
+          saved_date: Date(),
         };
       }
     },
@@ -72,27 +72,19 @@ const batchListSlice = createSlice({
     },
     updateQCBatch(state, action) {
       const { batchId, qcResultData, photo } = action.payload;
-      const batch = state.batchLs.find((b) => b.gloveBatchId === batchId);
-      if (batch && batch.steps && batch.steps[4]) {
-        batch.steps[4] = {
-          ...batch.steps[4],
-          data: qcResultData,
-          photo,
-          saved: true,
-        };
-      }
-      if (
-        state.activeBatch &&
-        state.activeBatch.gloveBatchId === batchId &&
-        state.activeBatch.steps &&
-        state.activeBatch.steps[4]
-      ) {
-        state.activeBatch.steps[4] = {
-          ...batch.steps[4],
-          data: qcResultData,
-          photo,
-          saved: true,
-        };
+      const batchIndex = state.batchLs.findIndex(
+        (b) => b.gloveBatchId === batchId
+      );
+      const batch = state.batchLs[batchIndex];
+      if (batchIndex != -1 && batch) {
+        if (batch.steps && batch.steps[4]) {
+          batch.steps[4] = {
+            ...batch.steps[4],
+            data: qcResultData,
+            saved: true,
+          };
+        }
+        state.batchLs[batchIndex] = batch;
       }
     },
   },
