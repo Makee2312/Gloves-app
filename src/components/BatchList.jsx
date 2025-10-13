@@ -7,22 +7,9 @@ import { setActiveBatch } from "../store/batchListSlice";
 function getBatchStatus(batch) {
   return batch.status ?? batch.status !== ""
     ? batch.status
-    : steps[0]?.saved === true
+    : batch.steps[0]?.saved === true
     ? "In progress"
     : "Yet to start";
-  const steps = batch.steps || [];
-  console.log(steps);
-  if (steps.length === 0) return "Yet to start";
-  const allSaved = steps.every(
-    (step) => step.processType === "qc" && Object.entries(step.data).length > 0
-  );
-  if (allSaved) return "Completed";
-  const gloveSaved = steps.every(
-    (step) => step.processType === "qc" || step.saved === true
-  );
-  if (gloveSaved) return "In QC";
-  if (steps[0]?.saved === true) return "In progress";
-  return "Yet to start";
 }
 
 export default function BatchList({ batchList }) {
@@ -61,9 +48,15 @@ export default function BatchList({ batchList }) {
                 className={`grid grid-cols-2 items-center px-5 py-4 border border-gray-200 rounded-2xl shadow-md hover:shadow-lg transition-all cursor-pointer`}
                 onClick={() => {
                   dispatch(setActiveBatch(batch));
-                  navigate("/latexinput", {
-                    state: { batchData: batch, viewOnly: !!batch.isFinished },
-                  });
+                  if (batch.derivedStatus == "In QC") {
+                    navigate("/qc", {
+                      state: { activeBatchId: batch.gloveBatchId },
+                    });
+                  } else {
+                    navigate("/latexinput", {
+                      state: { batchData: batch, viewOnly: !!batch.isFinished },
+                    });
+                  }
                 }}
               >
                 {/* Left side - Batch info */}
