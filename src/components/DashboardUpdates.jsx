@@ -1,13 +1,5 @@
 import { useSelector } from "react-redux";
-
-function getBatchStatus(batch) {
-  const steps = batch.steps || [];
-  if (steps.length === 0) return "Yet to start";
-  const allSaved = steps.every((step) => step.saved === true);
-  if (allSaved) return "Completed";
-  if (steps[0]?.saved === true) return "In progress";
-  return "Yet to start";
-}
+import { getBatchStatus } from "../reusables/getBatchStatus";
 
 export default function DashboardUpdates() {
   const batchList = useSelector((state) => state.batchList.batchLs);
@@ -35,7 +27,7 @@ export default function DashboardUpdates() {
 
         <div className="p-4 bg-gradient-to-br from-red-500 to-red-700 rounded-xl text-white shadow-md hover:shadow-xl transition-transform transform hover:-translate-y-1">
           <h3 className="text-3xl font-extrabold drop-shadow-sm">
-            {batchList?.filter((bat) => getBatchStatus(bat) === "Failed")
+            {batchList?.filter((bat) => getBatchStatus(bat) === "QC Failed")
               .length || 0}
           </h3>
           <p className="text-sm mt-2 text-red-100 font-medium tracking-wide">
@@ -45,8 +37,11 @@ export default function DashboardUpdates() {
 
         <div className="p-4 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl text-white shadow-md hover:shadow-xl transition-transform transform hover:-translate-y-1">
           <h3 className="text-3xl font-extrabold drop-shadow-sm">
-            {batchList?.filter((bat) => getBatchStatus(bat) === "In progress")
-              .length || 0}
+            {batchList?.filter(
+              (bat) =>
+                getBatchStatus(bat) === "In progress" ||
+                getBatchStatus(bat) === "In QC"
+            ).length || 0}
           </h3>
           <p className="text-sm mt-2 text-blue-100 font-medium tracking-wide">
             In Progress

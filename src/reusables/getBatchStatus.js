@@ -1,3 +1,9 @@
+export const qcFalseVariables = [
+  "visualDefectCount",
+  "waterTightnessFailCount",
+  "sterilityResult",
+  "biocompatibilityResult",
+];
 export function getBatchStatus(batch) {
   if (!batch) return "Unknown";
 
@@ -14,13 +20,6 @@ export function getBatchStatus(batch) {
     const qcStep =
       batch.steps?.find((s) => s.processType?.toLowerCase().includes("qc")) ??
       {};
-
-    const qcFalseVariables = [
-      "visualDefectCount",
-      "waterTightnessFailCount",
-      "sterilityResult",
-      "biocompatibilityResult",
-    ];
 
     // ✅ Safely check if QC failed
     const hasFailedQC = qcStep?.data?.some((stepData) =>

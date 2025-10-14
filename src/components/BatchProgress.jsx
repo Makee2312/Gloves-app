@@ -4,6 +4,7 @@ import { fetchBatchList } from "../store/batchListSlice";
 import { Search, X } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { getBatchStatus, getBatchColor } from "../reusables/getBatchStatus";
+import { qcFalseVariables } from "../reusables/getBatchStatus";
 
 export default function BatchProgress() {
   const location = useLocation();
@@ -228,19 +229,36 @@ export default function BatchProgress() {
                             >
                               <span className="px-3 font-medium text-gray-800">
                                 <div className="pb-3">{value.type} </div>
-                                {Object.entries(value.results).map(([k, v]) => (
-                                  <div
-                                    key={`${v}-${k}`} // ✅ unique per data item
-                                    className="group bg-teal-50 relative shadow-lg border border-gray-300 text-sm rounded-xl mb-2 p-4 cursor-pointer"
-                                  >
-                                    <span className="capitalize font-medium text-gray-600">
-                                      {k.replace(/([A-Z])/g, " $1")}:
-                                    </span>
-                                    <span className="px-3 font-medium text-gray-800">
-                                      {v?.toString() || "—"}
-                                    </span>
-                                  </div>
-                                ))}
+                                {Object.entries(value.results).map(([k, v]) => {
+                                  const qcFailed = qcFalseVariables.some(
+                                    (key) => {
+                                      console.log("key: " + k + "Val : " + v);
+                                      return (
+                                        (k === key &&
+                                          typeof v === "number" &&
+                                          v > 0) ||
+                                        (typeof v === "string" &&
+                                          v.toLowerCase() === "fail")
+                                      );
+                                    }
+                                  );
+                                  console.log("key: " + k + "Val : " + v);
+                                  return (
+                                    <div
+                                      key={`${v}-${k}`} // ✅ unique per data item
+                                      className={`group  ${
+                                        qcFailed ? "bg-red-200" : "bg-teal-50"
+                                      } relative shadow-lg border border-gray-300 text-sm rounded-xl mb-2 p-4 cursor-pointer`}
+                                    >
+                                      <span className="capitalize font-medium text-gray-600">
+                                        {k.replace(/([A-Z])/g, " $1")}:
+                                      </span>
+                                      <span className="px-3 font-medium text-gray-800">
+                                        {v?.toString() || "—"}
+                                      </span>
+                                    </div>
+                                  );
+                                })}
                               </span>
                             </div>
                           ))}
