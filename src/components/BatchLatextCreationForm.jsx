@@ -34,7 +34,7 @@ export default function BatchLatexCreationForm({ onBack }) {
   const [modalSuccess, setModalSuccess] = useState("");
   const batchLocked =
     activeBatch?.status === "In QC" || !!location?.state?.viewOnly;
-  
+
   useEffect(() => {
     if (!activeBatch || !activeBatch.gloveBatchId) {
       onBack && onBack();
@@ -43,6 +43,7 @@ export default function BatchLatexCreationForm({ onBack }) {
     const idx = (activeBatch.steps || []).findIndex(
       (s) => s.processType != "qc" && !s.saved
     );
+    console.log("useeffect: " + idx);
     setStepIdx(idx === -1 ? stepsConfig.length - 1 : idx);
   }, [activeBatch, onBack]);
 
@@ -89,7 +90,7 @@ export default function BatchLatexCreationForm({ onBack }) {
   }
 
   const firstUnsavedIndex = (activeBatch?.steps || []).findIndex(
-    (s) => !s.saved
+    (s) => s.status === "In QC" && !s.saved
   );
   const firstUnsaved =
     firstUnsavedIndex === -1 ? stepsConfig.length - 1 : firstUnsavedIndex;
@@ -106,16 +107,17 @@ export default function BatchLatexCreationForm({ onBack }) {
       setModalErrors([message]);
       setModalSuccess("");
       setShowModal(true);
+      console.log(firstUnsaved);
       setStepIdx(firstUnsaved);
       return;
     }
-    console.log(idx)
+    console.log(idx);
     setStepIdx(idx);
   }
 
   function handleStepSave(formData, form, photo) {
     if (!activeBatch) return;
-  
+
     const errors = validateStep(stepIdx, form);
     if (errors.length > 0) {
       setModalErrors(errors);
@@ -123,7 +125,7 @@ export default function BatchLatexCreationForm({ onBack }) {
       setShowModal(true);
       return;
     }
-  
+
     dispatch(
       updateStep({
         batchId: activeBatch.gloveBatchId,
@@ -132,15 +134,18 @@ export default function BatchLatexCreationForm({ onBack }) {
         photo,
       })
     );
-  
+
+    console.log(stepIdx);
     // Move to next step only if not the last one
     if (stepIdx < stepsConfig.length - 1) {
-      setTimeout(() => setStepIdx((prev) => prev + 1), 100);
+      setStepIdx((prev) => prev + 1);
     }
   }
-  
+
   function handleFinish(formData, form, photo) {
-    if (!activeBatch ||!batchLocked) return;
+    console.log("passed");
+    if (!activeBatch) return;
+    console.log("passed");
     dispatch(
       updateStep({
         batchId: activeBatch.gloveBatchId,
@@ -151,36 +156,35 @@ export default function BatchLatexCreationForm({ onBack }) {
     );
 
     dispatch(markAsQCBatch(activeBatch.gloveBatchId));
+
+    const latestBatch =
+      batchList.find((b) => b.gloveBatchId === activeBatch.gloveBatchId) ||
+      activeBatch;
+    const mergedBatch = {
+      ...latestBatch,
+      steps: (latestBatch.steps || []).map((s, i) =>
+        i === stepIdx ? { ...s, data: form, photo } : s
+      ),
+    };
+
+    // const errors = validateAllSteps(mergedBatch);
+    // if (errors.length > 0) {
+    //   setModalErrors(errors);
+    //   setModalSuccess("");
+    //   setShowModal(true);
+    //   setStepIdx(errors[0].stepIndex);
+    //   return;
+    // }
+    setModalErrors([]);
+    setModalSuccess("🎉 Batch completed successfully!");
+    setShowModal(true);
+
     setTimeout(() => {
-      const latestBatch =
-        batchList.find((b) => b.gloveBatchId === activeBatch.gloveBatchId) ||
-        activeBatch;
-      const mergedBatch = {
-        ...latestBatch,
-        steps: (latestBatch.steps || []).map((s, i) =>
-          i === stepIdx ? { ...s, data: form, photo } : s
-        ),
-      };
-
-      // const errors = validateAllSteps(mergedBatch);
-      // if (errors.length > 0) {
-      //   setModalErrors(errors);
-      //   setModalSuccess("");
-      //   setShowModal(true);
-      //   setStepIdx(errors[0].stepIndex);
-      //   return;
-      // }
-      setModalErrors([]);
-      setModalSuccess("🎉 Batch completed successfully!");
-      setShowModal(true);
-
-      setTimeout(() => {
-        setShowModal(false);
-        setTimeout(() => onBack && onBack(), 500);
-      }, 1400);
-    }, 200);
+      setShowModal(false);
+      setTimeout(() => onBack && onBack(), 500);
+    }, 1400);
   }
-
+  console.log(stepIdx);
   function getStepError(data) {
     const errs = validateStep(stepIdx, data);
     return errs.length ? errs[0].message : null;
@@ -189,7 +193,7 @@ export default function BatchLatexCreationForm({ onBack }) {
   const stepData = activeBatch?.steps?.[stepIdx]?.data || {};
   const stepPhoto = activeBatch?.steps?.[stepIdx]?.photo || null;
   const stepSaved = !!activeBatch?.steps?.[stepIdx]?.saved;
-console.log(stepData)
+  console.log(stepData);
   function closeModal() {
     setShowModal(false);
     setModalErrors([]);
@@ -370,19 +374,17 @@ function StepForm({
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
-
-
   useEffect(() => {
     const formatData = Object.fromEntries(
       vars.map((v) => [
         v.key,
-        form[v.key] !== undefined && form[v.key] !== "" 
-          ? form[v.key].split(" ")[0] 
+        form[v.key] !== undefined && form[v.key] !== ""
+          ? form[v.key].split(" ")[0]
           : "",
       ])
     );
     setForm(formatData || {});
-    console.log(formatData)
+    console.log(formatData);
     setImg(photo || null);
     setError("");
   }, [data, photo, stepIndex]);
@@ -430,7 +432,7 @@ function StepForm({
       onSave(formatData, form, img);
     }, 450);
   }
-  
+
   return (
     <form
       onSubmit={handleSubmit}
@@ -489,7 +491,7 @@ function StepForm({
         )}
       </div>
 
-      { !batchLocked && (
+      {!batchLocked && (
         <button
           type="submit"
           disabled={saving || stepSaved}
@@ -508,7 +510,6 @@ function StepForm({
           Saved ✓
         </div>
       )}
-      
 
       {batchLocked && !stepSaved && (
         <div className="mt-4 w-full py-2 rounded text-gray-700 bg-gray-50 border border-gray-200 text-center font-medium">

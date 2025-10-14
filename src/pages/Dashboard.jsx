@@ -22,7 +22,7 @@ export default function Dashboard() {
           TU
         </div>
         <div>
-          <p className="text-gray-500 dark:text-gray-400 text-sm">
+          <p className="text-gray-500 dark:text-gray-700 text-sm">
             Welcome back
           </p>
           <h2 className="text-base sm:text-lg font-semibold text-gray-800 dark:text-white">

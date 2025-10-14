@@ -28,7 +28,7 @@ export default function Footer() {
                  h-16 flex justify-around items-center"
     >
       {navItems.map((item) => {
-        const isActive = active === item.id;
+        const isActive = (active ?? 0) === item.id;
         return (
           <motion.button
             key={item.id}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, Settings } from "lucide-react";
 import { useDispatch } from "react-redux";
@@ -15,16 +15,56 @@ function getBatchStatus(batch) {
 export default function BatchList({ batchList }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [searchText, setSearchText] = useState("");
+  const [batchesWithStatus, setBatchesWithStatus] = useState(
+    batchList
+      ? batchList.map((batch) => ({
+          ...batch,
+          derivedStatus: getBatchStatus(batch),
+          isFinished:
+            batch.steps && batch.steps.every((step) => step.saved === true),
+        }))
+      : null
+  );
 
-  // Map status for each batch
-  const batchesWithStatus = batchList
-    ? batchList.map((batch) => ({
-        ...batch,
-        derivedStatus: getBatchStatus(batch),
-        isFinished:
-          batch.steps && batch.steps.every((step) => step.saved === true),
-      }))
-    : null;
+  useEffect(() => {
+    if (searchText !== "") {
+      setBatchesWithStatus(
+        batchList
+          ? batchList
+              .filter(
+                (batch) =>
+                  batch.gloveBatchId
+                    .toString()
+                    .toLocaleLowerCase()
+                    .includes(searchText.toLocaleLowerCase()) ||
+                  batch.status
+                    .toString()
+                    .toLocaleLowerCase()
+                    .includes(searchText.toLocaleLowerCase())
+              )
+              .map((batch) => ({
+                ...batch,
+                derivedStatus: getBatchStatus(batch),
+                isFinished:
+                  batch.steps &&
+                  batch.steps.every((step) => step.saved === true),
+              }))
+          : []
+      );
+    } else {
+      setBatchesWithStatus(
+        batchList
+          ? batchList.map((batch) => ({
+              ...batch,
+              derivedStatus: getBatchStatus(batch),
+              isFinished:
+                batch.steps && batch.steps.every((step) => step.saved === true),
+            }))
+          : null
+      );
+    }
+  }, [searchText, batchList]);
 
   return (
     <>
@@ -33,6 +73,8 @@ export default function BatchList({ batchList }) {
         <input
           placeholder="Search here"
           className="flex-1 outline-none text-sm"
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
         />
         <Settings className="w-4 h-4 text-gray-400" />
       </div>
@@ -40,7 +82,7 @@ export default function BatchList({ batchList }) {
         <span>Batch list</span>
         <span className="text-right">Date &amp; status</span>
       </div>
-      <div className="mt-2 space-y-3 px-4 flex-1 overflow-y-auto">
+      <div className="mt-2 mb-12 space-y-3 px-4 flex-1 overflow-y-auto">
         {batchesWithStatus
           ? batchesWithStatus.map((batch) => (
               <div
