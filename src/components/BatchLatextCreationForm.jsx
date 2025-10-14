@@ -291,7 +291,7 @@ export default function BatchLatexCreationForm({ onBack }) {
       {/* Main container */}
       <div className="w-full max-w-6xl mx-auto bg-white rounded-xl shadow-lg p-6 space-y-6">
         {/* Batch header */}
-        <div className="sticky top-3 z-10 bg-white p-3 rounded-lg shadow-sm border border-blue-50 text-center">
+        <div className="sticky top-3 z-10 bg-white p-3 rounded-md shadow-sm border border-blue-50 text-center">
           <span className="text-md font-bold uppercase text-blue-700">
             Batch:
           </span>
@@ -300,7 +300,7 @@ export default function BatchLatexCreationForm({ onBack }) {
           </span>
         </div>
 
-        <div className="w-full mx-auto flex text-md items-center justify-between gap-3 overflow-hidden">
+        <div className="w-full flex text-sm mt-2 mx-2 my-2 mb-2 min-hitems-center justify-between overflow-hidden">
           {stepsConfig.map((s, idx) => {
             const completed = !!activeBatch?.steps?.[idx]?.saved;
             const active = idx === stepIdx;
@@ -310,12 +310,12 @@ export default function BatchLatexCreationForm({ onBack }) {
                 type="button"
                 onClick={() => handleAttemptToSelectStep(idx)}
                 className={`flex-1 flex flex-col items-center py-2 px-1 focus:outline-none transition ${
-                  batchLocked ? "opacity-90" : "hover:scale-105"
+                  batchLocked ? "opacity-80" : "hover:scale-105"
                 }`}
                 aria-current={active ? "true" : "false"}
               >
                 <div
-                  className={`rounded-full w-12 h-12 flex items-center justify-center font-bold text-lg shadow-lg ${
+                  className={`rounded-full w-8 h-8 flex items-center justify-center font-bold text-md shadow-md ${
                     completed
                       ? "bg-green-500 text-white"
                       : active
@@ -326,7 +326,7 @@ export default function BatchLatexCreationForm({ onBack }) {
                   {idx + 1}
                 </div>
                 <div
-                  className={`mt-2 text-md text-center font-medium ${
+                  className={`mt-2 text-xs text-center font-medium ${
                     completed
                       ? "text-green-600"
                       : active
