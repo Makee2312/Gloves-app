@@ -318,17 +318,17 @@ export default function Qc() {
                         {qcResultData[index]?.results &&
                         Object.keys(qcResultData[index].results).length > 0 &&
                         activeStep !== index ? (
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-green-50 dark:bg-green-400 p-3 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm transition-all duration-300">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-green-50 p-3 rounded-xl border border-gray-200 shadow-sm transition-all duration-300">
                             {Object.entries(qcResultData[index].results).map(
                               ([key, value]) => (
                                 <div
                                   key={key}
-                                  className="flex flex-col sm:flex-row sm:items-center justify-between bg-green-100 dark:bg-green-900 rounded-lg p-2 px-3 hover:shadow-md transition"
+                                  className="flex flex-col sm:flex-row sm:items-center justify-between bg-green-100 rounded-lg p-2 px-3 hover:shadow-md transition"
                                 >
-                                  <span className="font-medium text-gray-700 dark:text-gray-300">
+                                  <span className="font-medium text-gray-700 ">
                                     {getVariableNameByKey(key)}:
                                   </span>
-                                  <span className="text-gray-500 dark:text-gray-400 mt-1 sm:mt-0">
+                                  <span className="text-gray-500  mt-1 sm:mt-0">
                                     {value ?? "-"}
                                   </span>
                                 </div>
