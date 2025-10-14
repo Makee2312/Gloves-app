@@ -4,14 +4,64 @@ import { Search, Settings } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { setActiveBatch } from "../store/batchListSlice";
 
-function getBatchStatus(batch) {
-  return batch.status ?? batch.status !== ""
-    ? batch.status
-    : batch.steps[0]?.saved === true
-    ? "In progress"
-    : "Yet to start";
-}
+// function getBatchStatus(batch) {
+//   return batch.status ?? batch.status !== ""
+//     ? batch.status
+//     : batch.steps[0]?.saved === true
+//     ? "In progress"
+//     : "Yet to start";
+// }
 
+function getBatchStatus(batch) {
+  if (!batch) return "Unknown";
+
+  // 1️⃣ Derive base status if explicitly set
+  if (
+    batch.status &&
+    batch.status.trim() !== "" &&
+    batch.status != "Completed"
+  ) {
+    return batch.status;
+  }
+  if (batch.status === "Completed") {
+    // 2️⃣ Check if QC failed — based on known fields
+    const qcStep =
+      batch.steps?.find((s) => s.processType?.toLowerCase().includes("qc")) ??
+      {};
+
+    const qcFalseVariables = [
+      "visualDefectCount",
+      "waterTightnessFailCount",
+      "sterilityResult",
+      "biocompatibilityResult",
+    ];
+
+    // ✅ Safely check if QC failed
+    const hasFailedQC = qcStep?.data?.some((stepData) =>
+      qcFalseVariables.some((key) => {
+        const value = stepData?.results?.[key];
+        return (
+          (typeof value === "number" && value > 0) ||
+          (typeof value === "string" && value.toLowerCase() === "fail")
+        );
+      })
+    );
+
+    if (hasFailedQC) {
+      return "QC Failed";
+    } else {
+      return "Completed";
+    }
+  }
+
+  // 4️⃣ Determine if any step started but not finished
+  if (batch.steps && batch.steps.some((step) => step.saved)) {
+    return "In progress";
+  }
+
+  // 5️⃣ Default fallback
+  return "Yet to start";
+}
 export default function BatchList({ batchList }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -92,6 +142,13 @@ export default function BatchList({ batchList }) {
                   dispatch(setActiveBatch(batch));
                   if (batch.derivedStatus == "In QC") {
                     navigate("/qc", {
+                      state: { activeBatchId: batch.gloveBatchId },
+                    });
+                  } else if (
+                    batch.derivedStatus == "Completed" ||
+                    batch.derivedStatus == "QC Failed"
+                  ) {
+                    navigate("/progress", {
                       state: { activeBatchId: batch.gloveBatchId },
                     });
                   } else {
