@@ -27,12 +27,12 @@ export const processVariables = {
   ],
 
   drying: [
-    { name: "Temperature", metric: "°C", key: "temperature" },
+    { name: "Temperature", metric: "°C", key: "dryingTemp" },
     { name: "Humidity", metric: "%", key: "humidity" },
   ],
 
   curing: [
-    { name: "Temperature", metric: "°C", key: "temperature" },
+    { name: "Temperature", metric: "°C", key: "curingTemp" },
     { name: "Time", metric: "minutes", key: "time" },
     {
       name: "Proper Vulcanization",

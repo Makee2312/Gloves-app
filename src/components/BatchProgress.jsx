@@ -12,8 +12,6 @@ export default function BatchProgress() {
   const [filteredBatches, setFilteredBatches] = useState([]);
   const [focusedIndex, setFocusedIndex] = useState(-1);
 
-
-
   useEffect(() => {
     dispatch(fetchBatchList());
   }, [dispatch]);
@@ -33,13 +31,7 @@ export default function BatchProgress() {
     }
   }, [searchTerm, batches]);
 
-
-
-  const currentBatch = batches.find(
-    (b) => b.gloveBatchId === selectedBatch
-  );
-
-
+  const currentBatch = batches.find((b) => b.gloveBatchId === selectedBatch);
 
   const handleSelect = (batchId) => {
     setSelectedBatch(batchId);
@@ -65,20 +57,20 @@ export default function BatchProgress() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-10 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-4 px-4">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header Section */}
-        <div className="bg-white-800 rounded-2xl px-4 py-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <h1 className="text-2xl font-bold text-gray-800 tracking-tight">
+        <div className="bg-white-800 rounded-2xl px-4 4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <h1 className="text-xl font-bold text-gray-800">
             Monitor Batch:{" "}
             <span className="text-gray-700">
-              {selectedBatch ? `#${selectedBatch}` : "None Selected"}
+              {selectedBatch ? `#${selectedBatch}` : " - "}
             </span>
           </h1>
 
           {/* Search Bar */}
           <div className="relative w-full md:w-72">
-            <div className="flex items-center bg-white rounded-lg shadow-md px-3 py-2 border border-gray-300 focus-within:border-blue-400 transition">
+            <div className="flex items-center bg-white rounded-lg shadow-md px-3 py-2 border border-gray-300 focus-within:border-blue-400">
               <Search className="w-5 h-5 text-gray-400 mr-2" />
               <input
                 type="text"
@@ -102,13 +94,15 @@ export default function BatchProgress() {
                   <button
                     key={batch.gloveBatchId}
                     onClick={() => handleSelect(batch.gloveBatchId)}
-                    className={`block w-full text-left px-4 py-2 text-sm ${focusedIndex === index
-                      ? "bg-blue-100"
-                      : "hover:bg-blue-50"
-                      } ${selectedBatch === batch.gloveBatchId
+                    className={`block w-full text-left px-4 py-2 text-sm ${
+                      focusedIndex === index
+                        ? "bg-blue-100"
+                        : "hover:bg-blue-50"
+                    } ${
+                      selectedBatch === batch.gloveBatchId
                         ? "font-semibold text-blue-700"
                         : "text-gray-700"
-                      }`}
+                    }`}
                   >
                     Batch #{batch.gloveBatchId}
                   </button>
@@ -126,7 +120,7 @@ export default function BatchProgress() {
         )}
 
         {/* Selected Batch Details */}
-        {currentBatch && (
+        {currentBatch ? (
           <div className="bg-white border border-gray-200 rounded-2xl shadow-md p-5">
             <div className="flex justify-between items-start">
               <div>
@@ -148,18 +142,19 @@ export default function BatchProgress() {
 
                 return (
                   <span
-                    className={`text-xs px-2 py-1 rounded-full font-semibold ${percent === 100
-                      ? "bg-green-100 text-green-700"
-                      : percent > 0
+                    className={`text-xs px-2 py-1 rounded-full font-semibold ${
+                      percent === 100
+                        ? "bg-green-100 text-green-700"
+                        : percent > 0
                         ? "bg-yellow-100 text-yellow-700"
                         : "bg-gray-100 text-gray-600"
-                      }`}
+                    }`}
                   >
                     {percent === 100
                       ? "Completed"
                       : percent > 0
-                        ? "In Progress"
-                        : "Pending"}
+                      ? "In Progress"
+                      : "Pending"}
                   </span>
                 );
               })()}
@@ -168,16 +163,18 @@ export default function BatchProgress() {
             {/* Progress Bar */}
             <div className="mt-4 h-2 bg-gray-100 rounded-full overflow-hidden">
               <div
-                className={`h-2 rounded-full transition-all ${currentBatch.steps?.filter((s) => s.saved)?.length ===
+                className={`h-2 rounded-full ${
+                  currentBatch.steps?.filter((s) => s.saved)?.length ===
                   currentBatch.steps?.length
-                  ? "bg-green-400"
-                  : "bg-yellow-300"
-                  }`}
+                    ? "bg-green-400"
+                    : "bg-yellow-300"
+                }`}
                 style={{
-                  width: `${((currentBatch.steps?.filter((s) => s.saved)?.length || 0) /
-                    (currentBatch.steps?.length || 1)) *
+                  width: `${
+                    ((currentBatch.steps?.filter((s) => s.saved)?.length || 0) /
+                      (currentBatch.steps?.length || 1)) *
                     100
-                    }%`,
+                  }%`,
                 }}
               ></div>
             </div>
@@ -191,7 +188,8 @@ export default function BatchProgress() {
                     : currentBatch.gloveBatchId
                 )
               }
-              className="mt-4 w-full text-md text-blue-600 font-medium hover:text-lg flex items-center justify-left gap-1"
+              className="mt-4 w-full text-md text-blue-600 font-medium 
+               flex items-center justify-left gap-1"
             >
               {expandedBatch === currentBatch.gloveBatchId
                 ? "▲ Hide Details"
@@ -199,15 +197,19 @@ export default function BatchProgress() {
             </button>
 
             {expandedBatch === currentBatch.gloveBatchId && (
-              <div className="mt-8 mb-8  border-gray-200 px-auto py-auto pb-auto pt-auto space-y-3 animate-fadeIn">
+              <div className="mt-8 mb-8  border-gray-200 px-auto py-auto pb-auto pt-auto space-y-3">
                 {currentBatch.steps.map((step, idx) => {
                   const status = step.saved ? "Completed" : "Not Saved";
                   return (
                     <div
-                      key={idx}   // ✅ key at top-level
-                      className="text-sm rounded-lg relative shadow-sm hover:shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105 overflow-hidden border px-3 py-2 border-gray-300 cursor-pointer"
+                      key={idx} // ✅ key at top-level
+                      className="text-sm rounded-lg relative shadow-sm overflow-hidden border px-3 py-2 border-gray-300 cursor-pointer"
                     >
-                      <div className={`text-sm p-3 ${step.saved ? "text-green-600" : "text-gray-600"}`}>
+                      <div
+                        className={`text-sm p-3 ${
+                          step.saved ? "text-green-600" : "text-gray-600"
+                        }`}
+                      >
                         <div className="flex justify-between">
                           <p className="font-medium">
                             Step {idx + 1}
@@ -226,9 +228,9 @@ export default function BatchProgress() {
                         <div className="mt-1 mb-2 ml-1 mr-1 grid grid-flow-row-dense sm:grid-cols-2 gap-3 text-medium text-gray-700 px-2">
                           {Object.entries(step.data).map(([key, value]) => (
                             <div
-                              key={`${step.processType}-${key}`} 
-                              className="group bg-teal-50 relative shadow-lg hover:shadow-2xl transition-all duration-300 ease-in-out transform hover:scale-105 border border-gray-300 text-sm rounded-xl mb-2 p-4 cursor-pointer"
-                            >
+                              key={`${step.processType}-${key}`} // ✅ unique per data item
+                              className="group bg-teal-50 relative shadow-lg border border-gray-300 text-sm rounded-xl mb-2 p-4 cursor-pointer"
+>
                               <span className="capitalize font-medium text-gray-600">
                                 {key.replace(/([A-Z])/g, " $1")}:
                               </span>
@@ -244,6 +246,10 @@ export default function BatchProgress() {
                 })}
               </div>
             )}
+          </div>
+        ) : (
+          <div className="flex items-center justify-center w-full h-[200px] text-gray-500 text-center">
+            No batches selected for monitoring
           </div>
         )}
       </div>

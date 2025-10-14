@@ -23,9 +23,9 @@ export const processValidations = {
     waterTemp: { min: 40, max: 80 }, // °C
     flowRate: { min: 5, max: 50 }, // L/min
     duration: { min: 5, max: 60 },
-    temperature: { min: 60, max: 120 }, // °C
+    dryingTemp: { min: 60, max: 120 }, // °C
     humidity: { min: 30, max: 70 },
-    temperature: { min: 100, max: 130 }, // °C
+    curingTemp: { min: 100, max: 130 }, // °C
     time: { min: 10, max: 60 }, // minutes
     vulcanizationStatus: { allowed: ["yes", "no"] }, // minutes
   },
