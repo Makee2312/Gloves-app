@@ -32,9 +32,11 @@ export default function BatchLatexCreationForm({ onBack }) {
   const [showModal, setShowModal] = useState(false);
   const [modalErrors, setModalErrors] = useState([]);
   const [modalSuccess, setModalSuccess] = useState("");
+
+
   const batchLocked =
-    activeBatch?.status === "In QC" || !!location?.state?.viewOnly;
-  
+    activeBatch?.status === "In Qc" || !!location?.state?.viewOnly;
+
   useEffect(() => {
     if (!activeBatch || !activeBatch.gloveBatchId) {
       onBack && onBack();
@@ -50,13 +52,38 @@ export default function BatchLatexCreationForm({ onBack }) {
     const errors = [];
     const step = stepsConfig[stepIndex];
     if (!step) return errors;
-    const vars = processVariables[step.processValidations] || [];
-    const vals = processValidations[step.processValidations] || {};
+
+    const processKey = step.processValidations;
+    const vars = processVariables[processKey] || [];
+    const vals = processValidations[processKey] || {};
+
+    // Special case: finishing step logic
+    const isFinishing = processKey === "finishing";
+    const powderedValue = data?.powderedGloves;
 
     for (const v of vars) {
-      const raw = data?.[v.key];
-      const isMissing =
-        raw === undefined || raw === null || String(raw).trim() === "";
+      const key = v.key;
+      const raw = data?.[key];
+      const isMissing = raw === undefined || raw === null || String(raw).trim() === "";
+
+      // 🧩 Skip logic for finishing
+      if (isFinishing) {
+        // skip polymerConc if powderedGloves !== 'yes'
+        if (key === "polymerConc" && powderedValue !== "yes") continue;
+
+        // skip cornstarchThickness if powderedGloves !== 'no'
+        if (key === "cornstarchThickness" && powderedValue !== "no") continue;
+
+        // skip both until powderedGloves chosen
+        if (
+          (key === "polymerConc" || key === "cornstarchThickness") &&
+          (powderedValue !== "yes" && powderedValue !== "no")
+        ) {
+          continue;
+        }
+      }
+
+      // Normal required check
       if (isMissing) {
         errors.push({
           stepIndex,
@@ -64,8 +91,10 @@ export default function BatchLatexCreationForm({ onBack }) {
         });
         continue;
       }
-      if (vals[v.key]) {
-        const { min, max } = vals[v.key];
+
+      // Numeric range validation
+      if (vals[key] && typeof vals[key].min !== "undefined") {
+        const { min, max } = vals[key];
         const num = Number(raw);
         if (Number.isNaN(num) || num < min || num > max) {
           errors.push({
@@ -74,11 +103,22 @@ export default function BatchLatexCreationForm({ onBack }) {
           });
         }
       }
+
+      // Allowed categorical validation (yes/no, pass/fail)
+      if (vals[key]?.allowed && !vals[key].allowed.includes(raw)) {
+        errors.push({
+          stepIndex,
+          message: `${step.title}: ${v.name} must be one of (${vals[key].allowed.join(", ")}).`,
+        });
+      }
     }
+
     return errors;
   }
 
   function validateAllSteps(batchToCheck) {
+
+
     const errors = [];
     for (let i = 0; i < stepsConfig.length; i++) {
       const data = batchToCheck?.steps?.[i]?.data || {};
@@ -99,9 +139,8 @@ export default function BatchLatexCreationForm({ onBack }) {
     if (idx > firstUnsaved) {
       const message = {
         stepIndex: firstUnsaved,
-        message: `Please complete "${stepsConfig[firstUnsaved].title}" (Step ${
-          firstUnsaved + 1
-        }) before proceeding.`,
+        message: `Please complete "${stepsConfig[firstUnsaved].title}" (Step ${firstUnsaved + 1
+          }) before proceeding.`,
       };
       setModalErrors([message]);
       setModalSuccess("");
@@ -109,13 +148,12 @@ export default function BatchLatexCreationForm({ onBack }) {
       setStepIdx(firstUnsaved);
       return;
     }
-    console.log(idx)
     setStepIdx(idx);
   }
 
   function handleStepSave(formData, form, photo) {
     if (!activeBatch) return;
-  
+
     const errors = validateStep(stepIdx, form);
     if (errors.length > 0) {
       setModalErrors(errors);
@@ -123,7 +161,7 @@ export default function BatchLatexCreationForm({ onBack }) {
       setShowModal(true);
       return;
     }
-  
+
     dispatch(
       updateStep({
         batchId: activeBatch.gloveBatchId,
@@ -132,15 +170,15 @@ export default function BatchLatexCreationForm({ onBack }) {
         photo,
       })
     );
-  
+
     // Move to next step only if not the last one
     if (stepIdx < stepsConfig.length - 1) {
       setTimeout(() => setStepIdx((prev) => prev + 1), 100);
     }
   }
-  
+
   function handleFinish(formData, form, photo) {
-    if (!activeBatch ||!batchLocked) return;
+    if (!activeBatch) return;
     dispatch(
       updateStep({
         batchId: activeBatch.gloveBatchId,
@@ -189,7 +227,7 @@ export default function BatchLatexCreationForm({ onBack }) {
   const stepData = activeBatch?.steps?.[stepIdx]?.data || {};
   const stepPhoto = activeBatch?.steps?.[stepIdx]?.photo || null;
   const stepSaved = !!activeBatch?.steps?.[stepIdx]?.saved;
-console.log(stepData)
+
   function closeModal() {
     setShowModal(false);
     setModalErrors([]);
@@ -268,30 +306,27 @@ console.log(stepData)
                 key={s.key}
                 type="button"
                 onClick={() => handleAttemptToSelectStep(idx)}
-                className={`flex-1 flex flex-col items-center py-2 px-1 focus:outline-none transition ${
-                  batchLocked ? "opacity-90" : "hover:scale-105"
-                }`}
+                className={`flex-1 flex flex-col items-center py-2 px-1 focus:outline-none transition ${batchLocked ? "opacity-90" : "hover:scale-105"
+                  }`}
                 aria-current={active ? "true" : "false"}
               >
                 <div
-                  className={`rounded-full w-12 h-12 flex items-center justify-center font-bold text-lg shadow-lg ${
-                    completed
-                      ? "bg-green-500 text-white"
-                      : active
+                  className={`rounded-full w-12 h-12 flex items-center justify-center font-bold text-lg shadow-lg ${completed
+                    ? "bg-green-500 text-white"
+                    : active
                       ? "bg-blue-600 text-white"
                       : "bg-gray-200 text-gray-600"
-                  }`}
+                    }`}
                 >
                   {idx + 1}
                 </div>
                 <div
-                  className={`mt-2 text-md text-center font-medium ${
-                    completed
-                      ? "text-green-600"
-                      : active
+                  className={`mt-2 text-md text-center font-medium ${completed
+                    ? "text-green-600"
+                    : active
                       ? "text-blue-600"
                       : "text-gray-400"
-                  }`}
+                    }`}
                 >
                   {s.title}
                 </div>
@@ -306,13 +341,12 @@ console.log(stepData)
             <div
               className=" h-3 rounded-full bg-gradient-to-r from-blue-500 to-green-400 transition-all duration-700"
               style={{
-                width: `${
-                  (stepsConfig.filter(
-                    (_, i) => !!activeBatch?.steps?.[i]?.saved
-                  ).length /
-                    stepsConfig.length) *
+                width: `${(stepsConfig.filter(
+                  (_, i) => !!activeBatch?.steps?.[i]?.saved
+                ).length /
+                  stepsConfig.length) *
                   100
-                }%`,
+                  }%`,
               }}
             />
           </div>
@@ -351,7 +385,6 @@ console.log(stepData)
   );
 }
 
-/* -------------------- StepForm -------------------- */
 function StepForm({
   stepIndex,
   step,
@@ -365,37 +398,44 @@ function StepForm({
   stepSaved,
   batchLocked,
 }) {
-  const [form, setForm] = useState(data || {});
+  // Declare base vars first (so useEffect can use it)
+  const baseVars = processVariables[step?.processValidations] || [];
+  const [form, setForm] = useState(() => {
+    // initialize from incoming `data` (strip any metric suffix if present)
+    const initial = {};
+    for (const v of baseVars) {
+      initial[v.key] = data?.[v.key] ? String(data[v.key]).split(" ")[0] : "";
+    }
+    return initial;
+  });
+
   const [img, setImg] = useState(photo || null);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
-
+  // Keep vars derived from processVariables; we will conditionally hide/show specific keys in render
+  const vars = baseVars;
 
   useEffect(() => {
-    const formatData = Object.fromEntries(
-      vars.map((v) => [
-        v.key,
-        form[v.key] !== undefined && form[v.key] !== "" 
-          ? form[v.key].split(" ")[0] 
-          : "",
-      ])
-    );
-    setForm(formatData || {});
-    console.log(formatData)
+    // Recreate form from incoming `data` whenever step/data/photo changes
+    const formatted = {};
+    for (const v of vars) {
+      formatted[v.key] = data?.[v.key] ? String(data[v.key]).split(" ")[0] : "";
+    }
+    setForm(formatted);
     setImg(photo || null);
     setError("");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, photo, stepIndex]);
 
-  const vars = processVariables[step?.processValidations] || [];
-
   function handleChange(e, key) {
-    if (stepSaved || batchLocked) return;
-    setForm((f) => ({ ...f, [key]: `${e.target.value}` }));
+    if (stepSaved) return;
+    const value = e.target.value;
+    setForm((f) => ({ ...f, [key]: value }));
   }
 
   function handlePhoto(e) {
-    if (stepSaved || batchLocked) return;
+    if (stepSaved) return;
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
@@ -406,7 +446,7 @@ function StepForm({
 
   function handleSubmit(e) {
     e.preventDefault();
-    if (stepSaved || batchLocked) return;
+    if (stepSaved) return;
 
     const errs = validateStep(stepIndex, form);
     if (errs.length > 0) {
@@ -419,54 +459,87 @@ function StepForm({
     setTimeout(() => {
       setSaving(false);
       setError("");
+
+      // Format data with metric suffixes (same behavior as before)
       const formatData = Object.fromEntries(
-        new Map(
-          vars.map((v) => [
-            v.key,
-            form[v.key] !== undefined ? `${form[v.key]} ${v.metric}` : "",
-          ])
-        )
+        vars.map((v) => [
+          v.key,
+          form[v.key] !== undefined ? `${form[v.key]} ${v.metric}` : "",
+        ])
       );
+
       onSave(formatData, form, img);
     }, 450);
   }
-  
+
   return (
     <form
       onSubmit={handleSubmit}
       noValidate
-      className={`bg-gray-50 rounded-lg p-4 shadow-md border border-blue-100 ${
-        stepSaved ? "opacity-80" : ""
-      }`}
+      className={`bg-gray-50 rounded-lg p-4 shadow-md border border-blue-100 ${stepSaved ? "opacity-80" : ""
+        }`}
       autoComplete="off"
     >
       <div className="grid grid-cols-1 gap-4">
-        {vars.map((v) => (
-          <div key={v.key} className="flex flex-col space-y-1">
-            <label className="text-md font-medium text-gray-700">
-              {v.name}
-              <span className="text-gray-400 text-xs ml-2">
-                (
-                {processValidations[step.processValidations]?.[v.key]?.min ??
-                  "—"}{" "}
-                -{" "}
-                {processValidations[step.processValidations]?.[v.key]?.max ??
-                  "—"}{" "}
-                {v.metric})
-              </span>
-            </label>
+        {vars.map((v) => {
+          const isFinishing = step.processValidations === "finishing";
+          const isPowderedGloves = isFinishing && v.key === "powderedGloves";
 
-            <input
-              inputMode="decimal"
-              type="number"
-              value={form[v.key] ?? ""}
-              onChange={(e) => handleChange(e, v.key)}
-              className="rounded-lg border px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
-              placeholder={`Enter ${v.name}`}
-              disabled={batchLocked}
-            />
-          </div>
-        ))}
+          // ✅ Conditional hiding for finishing step
+          if (isFinishing) {
+            const powderedValue = form["powderedGloves"];
+
+            // hide Polymer Concentration when powderedGloves !== "yes"
+            if (v.key === "polymerConc" && powderedValue !== "yes") {
+              return null;
+            }
+
+            // hide Cornstarch Thickness when powderedGloves !== "no"
+            if (v.key === "cornstarchThickness" && powderedValue !== "no") {
+              return null;
+            }
+          }
+
+          return (
+            <div key={v.key} className="flex flex-col space-y-1">
+              <label className="text-md font-medium text-gray-700">
+                {v.name}
+                {!isPowderedGloves && (
+                  <span className="text-gray-400 text-xs ml-2">
+                    (
+                    {processValidations[step.processValidations]?.[v.key]?.min ?? "—"}{" "}
+                    -{" "}
+                    {processValidations[step.processValidations]?.[v.key]?.max ?? "—"}{" "}
+                    {v.metric})
+                  </span>
+                )}
+              </label>
+
+              {isPowderedGloves ? (
+                <select
+                  value={form[v.key] ?? ""}
+                  onChange={(e) => handleChange(e, v.key)}
+                  className="rounded-lg border px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
+                  disabled={batchLocked}
+                >
+                  <option value="">Select Yes/No</option>
+                  <option value="yes">Yes</option>
+                  <option value="no">No</option>
+                </select>
+              ) : (
+                <input
+                  inputMode="decimal"
+                  type="number"
+                  value={form[v.key] ?? ""}
+                  onChange={(e) => handleChange(e, v.key)}
+                  className="rounded-lg border px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
+                  placeholder={`Enter ${v.name}`}
+                  disabled={batchLocked}
+                />
+              )}
+            </div>
+          );
+        })}
       </div>
 
       <div className="mt-3">
@@ -489,15 +562,14 @@ function StepForm({
         )}
       </div>
 
-      { !batchLocked && (
+      {!batchLocked && (
         <button
           type="submit"
           disabled={saving || stepSaved}
-          className={`mt-4 w-full py-2 rounded font-semibold ${
-            saving
-              ? "bg-gray-400 text-white"
-              : "bg-blue-600 text-white hover:bg-blue-700"
-          }`}
+          className={`mt-4 w-full py-2 rounded font-semibold ${saving
+            ? "bg-gray-400 text-white"
+            : "bg-blue-600 text-white hover:bg-blue-700"
+            }`}
         >
           {saving ? "Saving..." : lastStep ? "Finish & Save" : "Save & Next"}
         </button>
@@ -508,7 +580,6 @@ function StepForm({
           Saved ✓
         </div>
       )}
-      
 
       {batchLocked && !stepSaved && (
         <div className="mt-4 w-full py-2 rounded text-gray-700 bg-gray-50 border border-gray-200 text-center font-medium">
