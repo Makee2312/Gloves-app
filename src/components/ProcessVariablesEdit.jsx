@@ -75,7 +75,7 @@ export default function ProcessVariablesEdit() {
         {Object.entries(processVariables).map(([processName, variables]) => (
           <div
             key={processName}
-            className="bgborder border-gray-300 rounded-2xl shadow-sm bg-white"
+            className="bg-gray-100 border border-gray-200 rounded-2xl shadow-sm bg-white"
           >
             {/* Accordion header */}
             <div className="flex justify-between items-center px-4 py-3">
