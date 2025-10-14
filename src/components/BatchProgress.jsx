@@ -113,11 +113,11 @@ export default function BatchProgress() {
         </div>
 
         {/* No batches available */}
-        {batches.length === 0 && (
+        {/* {batches.length === 0 && (
           <p className="text-gray-500 text-sm italic text-center">
             No batches available. Please load or add data.
           </p>
-        )}
+        )} */}
 
         {/* Selected Batch Details */}
         {currentBatch ? (

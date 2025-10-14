@@ -75,7 +75,7 @@ export default function ProcessVariablesEdit() {
         {Object.entries(processVariables).map(([processName, variables]) => (
           <div
             key={processName}
-            className="border border-gray-300 dark:border-gray-700 rounded-2xl shadow-sm bg-white dark:bg-gray-900"
+            className="bgborder border-gray-300 rounded-2xl shadow-sm bg-white"
           >
             {/* Accordion header */}
             <div className="flex justify-between items-center px-4 py-3">
@@ -123,9 +123,9 @@ export default function ProcessVariablesEdit() {
                         return (
                           <div
                             key={idx}
-                            className="border border-gray-200 dark:border-gray-700 rounded-xl p-3 bg-gray-50 dark:bg-gray-800"
+                            className="border border-gray-200 rounded-xl p-3 bg-gray-50 "
                           >
-                            <h3 className="font-semibold mb-2 text-gray-700 dark:text-gray-200">
+                            <h3 className="font-semibold mb-2 text-gray-700">
                               {item.type}
                             </h3>
                             {item.values.map((v, i) => {
@@ -180,13 +180,11 @@ function EditableVariableRow({
   onChange,
 }) {
   return (
-    <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-3 hover:shadow-md bg-gray-50 dark:bg-gray-800 transition">
-      <p className="font-medium text-gray-800 dark:text-gray-100">
-        {variable.name}
-      </p>
+    <div className="border border-gray-200  rounded-xl p-3 hover:shadow-md bg-gray-50  transition">
+      <p className="font-medium text-gray-800 ">{variable.name}</p>
 
       {validation && (
-        <div className="text-sm text-gray-600 dark:text-gray-400 my-2 space-y-1">
+        <div className="text-sm text-gray-600  my-2 space-y-1">
           {editing ? (
             <>
               {"min" in validation && (
