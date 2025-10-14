@@ -296,7 +296,9 @@ export default function Qc() {
                             />
                           ) : (
                             <input
-                              inputMode="decimal"
+                              inputMode={
+                                value.type == "number" ? "decimal" : "text"
+                              }
                               type={value.type}
                               value={form[value.key] || ""}
                               onChange={(e) =>
