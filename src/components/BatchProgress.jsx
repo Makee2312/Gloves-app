@@ -226,7 +226,7 @@ export default function BatchProgress() {
                         <div className="mt-1 mb-2 ml-1 mr-1 grid grid-flow-row-dense sm:grid-cols-2 gap-3 text-medium text-gray-700 px-2">
                           {Object.entries(step.data).map(([key, value]) => (
                             <div
-                              key={`${step.processType}-${key}`} // ✅ unique per data item
+                              key={`${step.processType}-${key}`} 
                               className="group bg-teal-50 relative shadow-lg hover:shadow-2xl transition-all duration-300 ease-in-out transform hover:scale-105 border border-gray-300 text-sm rounded-xl mb-2 p-4 cursor-pointer"
                             >
                               <span className="capitalize font-medium text-gray-600">

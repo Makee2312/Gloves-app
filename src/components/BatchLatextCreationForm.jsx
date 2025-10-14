@@ -33,8 +33,8 @@ export default function BatchLatexCreationForm({ onBack }) {
   const [modalErrors, setModalErrors] = useState([]);
   const [modalSuccess, setModalSuccess] = useState("");
   const batchLocked =
-    activeBatch?.status === "Completed" || !!location?.state?.viewOnly;
-
+    activeBatch?.status === "In QC" || !!location?.state?.viewOnly;
+  
   useEffect(() => {
     if (!activeBatch || !activeBatch.gloveBatchId) {
       onBack && onBack();
@@ -95,7 +95,7 @@ export default function BatchLatexCreationForm({ onBack }) {
     firstUnsavedIndex === -1 ? stepsConfig.length - 1 : firstUnsavedIndex;
 
   function handleAttemptToSelectStep(idx) {
-    if (batchLocked) return;
+    //if (batchLocked) return;
     if (idx > firstUnsaved) {
       const message = {
         stepIndex: firstUnsaved,
@@ -109,13 +109,13 @@ export default function BatchLatexCreationForm({ onBack }) {
       setStepIdx(firstUnsaved);
       return;
     }
+    console.log(idx)
     setStepIdx(idx);
   }
 
   function handleStepSave(formData, form, photo) {
-    console.log(form);
-    if (!activeBatch) return;
-
+    if (!activeBatch ||!) return;
+  
     const errors = validateStep(stepIdx, form);
     if (errors.length > 0) {
       setModalErrors(errors);
@@ -123,7 +123,7 @@ export default function BatchLatexCreationForm({ onBack }) {
       setShowModal(true);
       return;
     }
-
+  
     dispatch(
       updateStep({
         batchId: activeBatch.gloveBatchId,
@@ -132,15 +132,15 @@ export default function BatchLatexCreationForm({ onBack }) {
         photo,
       })
     );
-
+  
+    // Move to next step only if not the last one
     if (stepIdx < stepsConfig.length - 1) {
-      setStepIdx(stepIdx + 1);
-    } else {
+      setTimeout(() => setStepIdx((prev) => prev + 1), 100);
     }
   }
-
+  
   function handleFinish(formData, form, photo) {
-    if (!activeBatch) return;
+    if (!activeBatch ||!batchLocked) return;
     dispatch(
       updateStep({
         batchId: activeBatch.gloveBatchId,
@@ -189,7 +189,7 @@ export default function BatchLatexCreationForm({ onBack }) {
   const stepData = activeBatch?.steps?.[stepIdx]?.data || {};
   const stepPhoto = activeBatch?.steps?.[stepIdx]?.photo || null;
   const stepSaved = !!activeBatch?.steps?.[stepIdx]?.saved;
-
+console.log(stepData)
   function closeModal() {
     setShowModal(false);
     setModalErrors([]);
@@ -259,7 +259,7 @@ export default function BatchLatexCreationForm({ onBack }) {
           </span>
         </div>
 
-        <div className="flex text-md items-center justify-between gap-3">
+        <div className="w-full mx-auto flex text-md items-center justify-between gap-3 overflow-hidden">
           {stepsConfig.map((s, idx) => {
             const completed = !!activeBatch?.steps?.[idx]?.saved;
             const active = idx === stepIdx;
@@ -301,10 +301,10 @@ export default function BatchLatexCreationForm({ onBack }) {
         </div>
 
         {/* Progress bar */}
-        <div className="mt-3">
+        <div className="mt-3 ">
           <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
             <div
-              className="h-3 rounded-full bg-gradient-to-r from-blue-500 to-green-400 transition-all duration-700"
+              className=" h-3 rounded-full bg-gradient-to-r from-blue-500 to-green-400 transition-all duration-700"
               style={{
                 width: `${
                   (stepsConfig.filter(
@@ -370,8 +370,19 @@ function StepForm({
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
+
+
   useEffect(() => {
-    setForm(data || {});
+    const formatData = Object.fromEntries(
+      vars.map((v) => [
+        v.key,
+        form[v.key] !== undefined && form[v.key] !== "" 
+          ? form[v.key].split(" ")[0] 
+          : "",
+      ])
+    );
+    setForm(formatData || {});
+    console.log(formatData)
     setImg(photo || null);
     setError("");
   }, [data, photo, stepIndex]);
@@ -419,6 +430,7 @@ function StepForm({
       onSave(formatData, form, img);
     }, 450);
   }
+  
   return (
     <form
       onSubmit={handleSubmit}
@@ -451,7 +463,7 @@ function StepForm({
               onChange={(e) => handleChange(e, v.key)}
               className="rounded-lg border px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
               placeholder={`Enter ${v.name}`}
-              disabled={stepSaved || batchLocked}
+              disabled={batchLocked}
             />
           </div>
         ))}
@@ -477,10 +489,10 @@ function StepForm({
         )}
       </div>
 
-      {!stepSaved && !batchLocked && (
+      { !batchLocked && (
         <button
           type="submit"
-          disabled={saving}
+          disabled={saving || stepSaved}
           className={`mt-4 w-full py-2 rounded font-semibold ${
             saving
               ? "bg-gray-400 text-white"
@@ -496,6 +508,7 @@ function StepForm({
           Saved ✓
         </div>
       )}
+      
 
       {batchLocked && !stepSaved && (
         <div className="mt-4 w-full py-2 rounded text-gray-700 bg-gray-50 border border-gray-200 text-center font-medium">
