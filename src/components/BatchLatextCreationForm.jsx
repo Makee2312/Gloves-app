@@ -114,7 +114,7 @@ export default function BatchLatexCreationForm({ onBack }) {
   }
 
   function handleStepSave(formData, form, photo) {
-    if (!activeBatch ||!) return;
+    if (!activeBatch) return;
   
     const errors = validateStep(stepIdx, form);
     if (errors.length > 0) {
