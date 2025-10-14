@@ -2,12 +2,16 @@ import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchBatchList } from "../store/batchListSlice";
 import { Search, X } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { version } from "react-dom/server";
 
 export default function BatchProgress() {
+  const location = useLocation();
+  const { activeBatchId } = location.state || {};
   const dispatch = useDispatch();
   const batches = useSelector((state) => state.batchList?.batchLs || []);
   const [expandedBatch, setExpandedBatch] = useState(null);
-  const [selectedBatch, setSelectedBatch] = useState(null);
+  const [selectedBatch, setSelectedBatch] = useState(activeBatchId);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredBatches, setFilteredBatches] = useState([]);
   const [focusedIndex, setFocusedIndex] = useState(-1);
@@ -223,14 +227,39 @@ export default function BatchProgress() {
                           </p>
                         </div>
                       </div>
-                      {/* inner data map */}
-                      {step.data && (
+                      {step.processType === "qc" ? (
+                        <div className="mt-1 mb-2 ml-1 mr-1 grid grid-flow-row-dense sm:grid-cols-2 gap-3 text-medium text-gray-700 px-2">
+                          {Object.entries(step.data).map(([key, value]) => (
+                            <div
+                              key={`${step.processType}-${key}`} // ✅ unique per data item
+                              className="group bg-teal-50 relative shadow-lg border border-gray-300 text-sm rounded-xl mb-2 px-4 cursor-pointer"
+                            >
+                              <span className="px-3 font-medium text-gray-800">
+                                <div className="pb-3">{value.type} </div>
+                                {Object.entries(value.results).map(([k, v]) => (
+                                  <div
+                                    key={`${v}-${k}`} // ✅ unique per data item
+                                    className="group bg-teal-50 relative shadow-lg border border-gray-300 text-sm rounded-xl mb-2 p-4 cursor-pointer"
+                                  >
+                                    <span className="capitalize font-medium text-gray-600">
+                                      {k.replace(/([A-Z])/g, " $1")}:
+                                    </span>
+                                    <span className="px-3 font-medium text-gray-800">
+                                      {v?.toString() || "—"}
+                                    </span>
+                                  </div>
+                                ))}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
                         <div className="mt-1 mb-2 ml-1 mr-1 grid grid-flow-row-dense sm:grid-cols-2 gap-3 text-medium text-gray-700 px-2">
                           {Object.entries(step.data).map(([key, value]) => (
                             <div
                               key={`${step.processType}-${key}`} // ✅ unique per data item
                               className="group bg-teal-50 relative shadow-lg border border-gray-300 text-sm rounded-xl mb-2 p-4 cursor-pointer"
->
+                            >
                               <span className="capitalize font-medium text-gray-600">
                                 {key.replace(/([A-Z])/g, " $1")}:
                               </span>
