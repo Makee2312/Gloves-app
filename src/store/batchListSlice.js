@@ -42,32 +42,31 @@ const batchListSlice = createSlice({
     updateStep(state, action) {
       const { batchId, stepIdx, formData, photo } = action.payload;
       const batch = state.batchLs.find((b) => b.gloveBatchId === batchId);
-      if (batch && batch.steps && batch.steps[stepIdx]) {
-        batch.status = "In progress";
-        batch.steps[stepIdx] = {
-          ...batch.steps[stepIdx],
-          data: formData,
-          photo,
-          saved: true,
-          saved_date: savedDate,
+      if (!batch || !batch.steps) return;
+    
+      batch.status = "In progress";
+      batch.steps = batch.steps.map((s, i) =>
+        i === stepIdx
+          ? { ...s, data: formData, photo, saved: true, saved_date: savedDate }
+          : s
+      );
+    
+      // Update activeBatch safely
+      if (state.activeBatch?.gloveBatchId === batchId) {
+        state.activeBatch = {
+          ...batch,
+          steps: batch.steps.map((s) => ({ ...s })),
         };
       }
-      if (
-        state.activeBatch &&
-        state.activeBatch.gloveBatchId === batchId &&
-        state.activeBatch.steps &&
-        state.activeBatch.steps[stepIdx]
-      ) {
-        state.activeBatch.status = "In progress";
-        state.activeBatch.steps[stepIdx] = {
-          ...batch.steps[stepIdx],
-          data: formData,
-          photo,
-          saved: true,
-          saved_date: savedDate,
-        };
+    
+      // Optional: auto-mark next step as unlocked
+      const allSavedExceptQC = batch.steps
+        .slice(0, 4)
+        .every((s) => s.saved === true);
+      if (allSavedExceptQC) {
+        batch.status = "In QC";
       }
-    },
+    },    
     markAsQCBatch(state, action) {
       const batchId = action.payload;
       const batch = state.batchLs.find((b) => b.gloveBatchId === batchId);

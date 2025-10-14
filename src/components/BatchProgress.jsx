@@ -230,7 +230,7 @@ export default function BatchProgress() {
                             <div
                               key={`${step.processType}-${key}`} // ✅ unique per data item
                               className="group bg-teal-50 relative shadow-lg border border-gray-300 text-sm rounded-xl mb-2 p-4 cursor-pointer"
-                            >
+>
                               <span className="capitalize font-medium text-gray-600">
                                 {key.replace(/([A-Z])/g, " $1")}:
                               </span>
