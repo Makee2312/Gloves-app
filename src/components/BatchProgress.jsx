@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchBatchList } from "../store/batchListSlice";
 import { Search, X } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { version } from "react-dom/server";
+import { getBatchStatus, getBatchColor } from "../reusables/getBatchStatus";
 
 export default function BatchProgress() {
   const location = useLocation();
@@ -143,22 +143,14 @@ export default function BatchProgress() {
                   currentBatch.steps?.filter((s) => s.saved)?.length || 0;
                 const percent =
                   total > 0 ? Math.round((completed / total) * 100) : 0;
-
+                const batchStatus = getBatchStatus(currentBatch);
                 return (
                   <span
-                    className={`text-xs px-2 py-1 rounded-full font-semibold ${
-                      percent === 100
-                        ? "bg-green-100 text-green-700"
-                        : percent > 0
-                        ? "bg-yellow-100 text-yellow-700"
-                        : "bg-gray-100 text-gray-600"
-                    }`}
+                    className={`text-xs px-2 py-1 rounded-full font-semibold ${getBatchColor(
+                      batchStatus
+                    )}`}
                   >
-                    {percent === 100
-                      ? "Completed"
-                      : percent > 0
-                      ? "In Progress"
-                      : "Pending"}
+                    {batchStatus}
                   </span>
                 );
               })()}

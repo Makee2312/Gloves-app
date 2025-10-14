@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import { updateQCBatch } from "../store/batchListSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { BiEdit } from "react-icons/bi";
-
 import { useNavigate, useLocation } from "react-router-dom";
 import BatchSearchBox from "../reusables/BatchSearchBox";
 
