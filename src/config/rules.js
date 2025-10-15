@@ -64,8 +64,7 @@ export const processValidations = {
     biocompatibilityResult: { allowed: ["pass", "fail"] }, // categorical validation
 
     // Packaging Data
-    batchNumber: { required: true },
-    packingDate: { required: true },
+    packagingID: { required: true },
     testResultsSummary: { maxLength: 500 },
     sterilizationDetails: { maxLength: 300 },
   },

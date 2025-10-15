@@ -12,7 +12,7 @@ export default function Layout() {
     dispatch(fetchBatchList());
   }, [dispatch]);
   return (
-    <div className="min-h-screen mt-2 mb-0 flex flex-col">
+    <div className="min-h-screen mb-0 flex flex-col">
       {/* Sticky Header */}
       <Header />
 

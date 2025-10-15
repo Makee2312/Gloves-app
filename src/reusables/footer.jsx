@@ -26,7 +26,7 @@ export default function Footer() {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(() => {
       if (location.pathname !== "/") setVisible(false);
-    }, 5000);
+    }, 3000);
   };
 
   useEffect(() => {
@@ -62,7 +62,7 @@ export default function Footer() {
       initial={{ y: 100 }}
       animate={{ y: visible ? 0 : 100 }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
-      className="fixed bottom-0 left-0 right-0 z-50 
+      className="fixed bottom-4 left-0 right-0 z-50 
                  bg-white shadow-[0_-2px_8px_rgba(0,0,0,0.1)] mx-[15%] rounded-2xl
                  h-16 flex justify-around items-center"
     >

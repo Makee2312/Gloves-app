@@ -73,7 +73,7 @@ export default function BatchList({ batchList, searchText, setSearchText }) {
         <span>Batch list</span>
         <span className="text-right">Status &amp; date</span>
       </div>
-      <div className="mt-2 mb-12 space-y-3 px-4 flex-1 overflow-y-auto">
+      <div className="mt-2 mb-16 space-y-3 px-4 flex-1 overflow-y-auto">
         {batchesWithStatus
           ? batchesWithStatus.map((batch) => (
               <div

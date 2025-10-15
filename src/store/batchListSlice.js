@@ -43,14 +43,14 @@ const batchListSlice = createSlice({
       const { batchId, stepIdx, formData, photo } = action.payload;
       const batch = state.batchLs.find((b) => b.gloveBatchId === batchId);
       if (!batch || !batch.steps) return;
-    
+
       batch.status = "In progress";
       batch.steps = batch.steps.map((s, i) =>
         i === stepIdx
           ? { ...s, data: formData, photo, saved: true, saved_date: savedDate }
           : s
       );
-    
+
       // Update activeBatch safely
       if (state.activeBatch?.gloveBatchId === batchId) {
         state.activeBatch = {
@@ -58,7 +58,7 @@ const batchListSlice = createSlice({
           steps: batch.steps.map((s) => ({ ...s })),
         };
       }
-    
+
       // Optional: auto-mark next step as unlocked
       const allSavedExceptQC = batch.steps
         .slice(0, 4)
@@ -66,7 +66,7 @@ const batchListSlice = createSlice({
       if (allSavedExceptQC) {
         batch.status = "In QC";
       }
-    },    
+    },
     markAsQCBatch(state, action) {
       const batchId = action.payload;
       const batch = state.batchLs.find((b) => b.gloveBatchId === batchId);
@@ -87,6 +87,7 @@ const batchListSlice = createSlice({
             ...batch.steps[4],
             data: qcResultData,
             saved: saved,
+            saved_date: saved ? savedDate : null,
           };
         }
         if (saved) {

@@ -7,7 +7,7 @@ export default function Header({ isDashboard }) {
   return (
     <header
       className="flex items-center justify-between px-4 sm:px-6 py-3 
-                       bg-gradient-to-r from-blue-300 via-blue-500 to-blue-200 
+                       bg-gradient-to-r from-blue-400 via-blue-400 to-blue-300 
                        shadow-lg backdrop-blur-md border-b border-blue-300"
     >
       {/* Left: Logo + Title */}
@@ -17,7 +17,7 @@ export default function Header({ isDashboard }) {
           alt="Logo"
           className="w-10 h-10 rounded-full border-2 border-white/50 shadow-md"
         />
-        <h1 className="text-blue-900 text-xl sm:text-xl font-bold tracking-wide drop-shadow-md">
+        <h1 className="text-blue-900 text-xl sm:text-md font-bold tracking-wide drop-shadow-md">
           Glove Manufacturing
         </h1>
       </div>

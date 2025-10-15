@@ -197,7 +197,7 @@ export default function Qc() {
               {step.type}
             </span>
             {index < qcVariables.length - 1 && (
-              <div className="w-8 h-[2px] bg-gray-300"></div>
+              <div className="w-6 h-[2px] bg-gray-300"></div>
             )}
           </div>
         );
@@ -286,9 +286,19 @@ export default function Qc() {
                 }`}
               >
                 <div className="flex justify-between items-center mb-3">
-                  <h3 className="font-semibold text-base sm:text-lg text-gray-800">
-                    {index + 1}. {variable.type}
-                  </h3>
+                  <div className="flex items-center">
+                    <div
+                      className="flex items-center justify-center h-4 w-4 mr-2 
+               bg-gray-600 text-white rounded-full text-[10px] font-medium flex-shrink-0"
+                    >
+                      {index + 1}
+                    </div>
+
+                    <h3 className="font-semibold text-base sm:text-lg text-gray-800 leading-none">
+                      {variable.type}
+                    </h3>
+                  </div>
+
                   {isDone && !isActive && (
                     <BiEdit
                       onClick={() => handleEdit(index)}
@@ -379,7 +389,7 @@ export default function Qc() {
             );
           })
         ) : (
-          <div className="flex items-center justify-center w-full h-[200px] text-gray-500 text-center">
+          <div className="flex items-center justify-center w-full h-max text-gray-500 text-center">
             No batches selected for QC
           </div>
         )}

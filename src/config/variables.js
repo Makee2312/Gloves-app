@@ -180,21 +180,15 @@ export const processVariables = {
       type: "Packaging data",
       values: [
         {
-          name: "Batch Number",
+          name: "Packaging ID",
           metric: "text",
-          key: "batchNumber",
+          key: "packagingID",
           type: "text",
         },
         {
           name: "Test Results Summary",
           metric: "text",
           key: "testResultsSummary",
-          type: "text",
-        },
-        {
-          name: "Packing Date",
-          metric: "date",
-          key: "packingDate",
           type: "text",
         },
         {
