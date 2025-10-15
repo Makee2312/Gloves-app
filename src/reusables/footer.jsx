@@ -13,7 +13,6 @@ const navItems = [
   { id: 0, name: "Dashboard", icon: <GrDashboard />, route: "/" },
   { id: 1, name: "Monitor", icon: <GrMonitor />, route: "/progress" },
   { id: 2, name: "QC", icon: <GrTest />, route: "/qc" },
-  { id: 3, name: "Settings", icon: <GrSettingsOption />, route: "/settings" },
 ];
 
 export default function Footer() {
@@ -24,7 +23,7 @@ export default function Footer() {
   return (
     <div
       className="fixed bottom-0 left-0 right-0 z-50 
-                 bg-white shadow-[0_-2px_8px_rgba(0,0,0,0.1)] 
+                 bg-white shadow-[0_-2px_8px_rgba(0,0,0,0.1)] mx-[15%] rounded-2xl
                  h-16 flex justify-around items-center"
     >
       {navItems.map((item) => {

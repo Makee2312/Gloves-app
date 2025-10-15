@@ -10,6 +10,7 @@ export default function Dashboard() {
   const [open, setOpen] = useState(false);
   const { batches, loading, fetchBatches, addBatch } = useBatchData();
   const batchesList = useSelector((state) => state.batchList);
+  const [searchText, setSearchText] = useState("");
 
   useEffect(() => {
     fetchBatches();
@@ -22,19 +23,21 @@ export default function Dashboard() {
           TU
         </div>
         <div>
-          <p className="text-gray-500 text-sm">
-            Welcome back
-          </p>
+          <p className="text-gray-500 text-sm">Welcome back</p>
           <h2 className="text-base sm:text-lg font-semibold text-gray-800">
             Test User
           </h2>
         </div>
       </div>
-      <DashboardUpdates />
+      <DashboardUpdates searchText={searchText} setSearchText={setSearchText} />
       {loading ? (
         <div>Loading....</div>
       ) : (
-        <BatchList batchList={batchesList.batchLs} />
+        <BatchList
+          batchList={batchesList.batchLs}
+          searchText={searchText}
+          setSearchText={setSearchText}
+        />
       )}
       <button
         className="fixed bottom-20 right-5 bg-blue-600 p-4 rounded-full text-white shadow-lg"

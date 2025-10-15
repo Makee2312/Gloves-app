@@ -1,5 +1,10 @@
 import glove from "../glove_192.jpg";
+import { Settings } from "lucide-react";
+
+import { useNavigate } from "react-router-dom";
+
 export default function Header({ isDashboard }) {
+  const navigate = useNavigate();
   return (
     <header className="sticky top-0 z-50 flex items-center justify-between px-4 sm:px-6 py-3 bg-gradient-to-r from-blue-900 via-blue-800 to-blue-700 shadow-md">
       {/* Left: App Title */}
@@ -21,7 +26,10 @@ export default function Header({ isDashboard }) {
           <span className="w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse"></span>
           <span className="text-sm text-red-200 font-medium">Offline</span>
         </div>
-
+        <Settings
+          className="w-6 h-6 text-white hover:text-blue-200 animate-spin-slow"
+          onClick={() => navigate("/settings")}
+        />
         {/* Optional: User info (visible on dashboard only) */}
         {isDashboard && (
           <div className="hidden sm:flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium px-3 py-1.5 rounded-lg transition">
