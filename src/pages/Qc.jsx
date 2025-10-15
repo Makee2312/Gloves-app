@@ -272,7 +272,7 @@ export default function Qc() {
             const isActive = activeStep === index;
             const results = qcResultData[index]?.results;
             const isDone = results && Object.keys(results).length > 0;
-
+            console.log(results);
             return (
               <div
                 key={index}
@@ -297,7 +297,7 @@ export default function Qc() {
                   )}
                 </div>
 
-                {isActive || !isDone ? (
+                {isActive ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     {variable.values.map((value) => (
                       <div key={value.key} className="block my-1">
@@ -347,7 +347,7 @@ export default function Qc() {
                       </div>
                     ))}
                   </div>
-                ) : (
+                ) : results ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-white rounded-md border border-gray-200 p-3">
                     {Object.entries(results).map(([key, val]) => (
                       <div
@@ -361,6 +361,8 @@ export default function Qc() {
                       </div>
                     ))}
                   </div>
+                ) : (
+                  " Yet to test "
                 )}
 
                 {isActive && (
