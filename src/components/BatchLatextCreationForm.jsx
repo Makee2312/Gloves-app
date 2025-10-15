@@ -31,6 +31,7 @@ export default function BatchLatexCreationForm({ onBack }) {
   const [stepIdx, setStepIdx] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [modalErrors, setModalErrors] = useState([]);
+  const [stepErrors, setStepErrors] = useState([]);
   const [modalSuccess, setModalSuccess] = useState("");
 
   const batchLocked =
@@ -44,7 +45,6 @@ export default function BatchLatexCreationForm({ onBack }) {
     const idx = (activeBatch.steps || []).findIndex(
       (s) => s.processType != "qc" && !s.saved
     );
-    console.log("useeffect: " + idx);
     setStepIdx(idx === -1 ? stepsConfig.length - 1 : idx);
   }, [activeBatch, onBack]);
 
@@ -89,6 +89,7 @@ export default function BatchLatexCreationForm({ onBack }) {
       if (isMissing) {
         errors.push({
           stepIndex,
+          key,
           message: `${step.title}: ${v.name} is required.`,
         });
         continue;
@@ -101,6 +102,7 @@ export default function BatchLatexCreationForm({ onBack }) {
         if (Number.isNaN(num) || num < min || num > max) {
           errors.push({
             stepIndex,
+            key,
             message: `${step.title}: ${v.name} must be between ${min} and ${max} ${v.metric}.`,
           });
         }
@@ -110,6 +112,7 @@ export default function BatchLatexCreationForm({ onBack }) {
       if (vals[key]?.allowed && !vals[key].allowed.includes(raw)) {
         errors.push({
           stepIndex,
+          key,
           message: `${step.title}: ${v.name} must be one of (${vals[
             key
           ].allowed.join(", ")}).`,
@@ -131,13 +134,14 @@ export default function BatchLatexCreationForm({ onBack }) {
   }
 
   const firstUnsavedIndex = (activeBatch?.steps || []).findIndex(
-    (s) => s.status === "In QC" && !s.saved
+    (s) => !s.saved
   );
+
   const firstUnsaved =
     firstUnsavedIndex === -1 ? stepsConfig.length - 1 : firstUnsavedIndex;
 
   function handleAttemptToSelectStep(idx) {
-    //if (batchLocked) return;
+    // if (batchLocked) return;  <= keep as is
     if (idx > firstUnsaved) {
       const message = {
         stepIndex: firstUnsaved,
@@ -148,7 +152,6 @@ export default function BatchLatexCreationForm({ onBack }) {
       setModalErrors([message]);
       setModalSuccess("");
       setShowModal(true);
-      console.log(firstUnsaved);
       setStepIdx(firstUnsaved);
       return;
     }
@@ -160,9 +163,7 @@ export default function BatchLatexCreationForm({ onBack }) {
 
     const errors = validateStep(stepIdx, form);
     if (errors.length > 0) {
-      setModalErrors(errors);
-      setModalSuccess("");
-      setShowModal(true);
+      setStepErrors(errors);
       return;
     }
 
@@ -212,7 +213,7 @@ export default function BatchLatexCreationForm({ onBack }) {
     //   setStepIdx(errors[0].stepIndex);
     //   return;
     // }
-    setModalErrors([]);
+    setStepErrors([]);
     setModalSuccess("🎉 Batch completed successfully!");
     setShowModal(true);
 
@@ -221,7 +222,7 @@ export default function BatchLatexCreationForm({ onBack }) {
       setTimeout(() => onBack && onBack(), 500);
     }, 1400);
   }
-  console.log(stepIdx);
+
   function getStepError(data) {
     const errs = validateStep(stepIdx, data);
     return errs.length ? errs[0].message : null;
@@ -247,9 +248,7 @@ export default function BatchLatexCreationForm({ onBack }) {
               <>
                 <div className="flex items-center gap-3 mb-4">
                   <div className="text-3xl text-red-600">⚠️</div>
-                  <h3 className="text-lg font-semibold text-red-700">
-                    Validation
-                  </h3>
+                  <h3 className="text-lg font-semibold text-red-700">Alert</h3>
                 </div>
 
                 <div className="max-h-64 overflow-y-auto space-y-3">
@@ -260,8 +259,7 @@ export default function BatchLatexCreationForm({ onBack }) {
                     >
                       <div className="font-medium">{e.message}</div>
                       <div className="text-xs text-gray-500 mt-1">
-                        Step {e.stepIndex + 1}:{" "}
-                        {stepsConfig[e.stepIndex]?.title}
+                        Step {e.stepIndex + 1}: {stepsConfig[e.stepIndex]?.title}
                       </div>
                     </div>
                   ))}
@@ -292,9 +290,7 @@ export default function BatchLatexCreationForm({ onBack }) {
       <div className="w-full max-w-6xl mx-auto bg-white rounded-xl shadow-lg p-6 space-y-6">
         {/* Batch header */}
         <div className="sticky top-3 z-10 bg-white p-3 rounded-md shadow-sm border border-blue-50 text-center">
-          <span className="text-md font-bold uppercase text-blue-700">
-            Batch:
-          </span>
+          <span className="text-md font-bold uppercase text-blue-700">Batch:</span>
           <span className="text-base font-bold ml-2">
             {activeBatch?.gloveBatchId ?? "—"}
           </span>
@@ -365,18 +361,20 @@ export default function BatchLatexCreationForm({ onBack }) {
           step={stepsConfig[stepIdx]}
           data={stepData}
           photo={stepPhoto}
-          onSave={
-            stepIdx === stepsConfig.length - 1 ? handleFinish : handleStepSave
-          }
-          validateStep={validateStep}
+          onSave={stepIdx === stepsConfig.length - 1 ? handleFinish : handleStepSave}
+          validateAllSteps={(idx, formData) => {
+            // Only validate the current step with validateStep for error highlighting
+            return validateStep(idx, formData);
+          }}
           onValidationFail={(errs) => {
-            setModalErrors(errs);
-            setShowModal(true);
+            setStepErrors(errs);
           }}
           getError={getStepError}
           lastStep={stepIdx === stepsConfig.length - 1}
           stepSaved={stepSaved}
           batchLocked={batchLocked}
+          stepErrors={stepErrors}
+          setStepErrors={setStepErrors}
         />
 
         <div className="flex justify-end">
@@ -398,12 +396,14 @@ function StepForm({
   data,
   photo,
   onSave,
-  validateStep,
+  validateAllSteps,
   onValidationFail,
   getError,
   lastStep,
   stepSaved,
   batchLocked,
+  stepErrors,
+  setStepErrors,
 }) {
   // Declare base vars first (so useEffect can use it)
   const baseVars = processVariables[step?.processValidations] || [];
@@ -432,6 +432,7 @@ function StepForm({
     setForm(formatted);
     setImg(photo || null);
     setError("");
+    setStepErrors([]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, photo, stepIndex]);
 
@@ -439,6 +440,9 @@ function StepForm({
     if (stepSaved) return;
     const value = e.target.value;
     setForm((f) => ({ ...f, [key]: value }));
+    if (stepErrors.some((err) => err.key === key)) {
+      setStepErrors((prev) => prev.filter((err) => err.key !== key));
+    }
   }
 
   function handlePhoto(e) {
@@ -455,7 +459,8 @@ function StepForm({
     e.preventDefault();
     if (stepSaved) return;
 
-    const errs = validateStep(stepIndex, form);
+    // Use validateAllSteps for full validation of current form data in this step
+    const errs = validateAllSteps(stepIndex, form);
     if (errs.length > 0) {
       setError(errs[0].message);
       onValidationFail(errs);
@@ -466,6 +471,7 @@ function StepForm({
     setTimeout(() => {
       setSaving(false);
       setError("");
+      setStepErrors([]);
 
       // Format data with metric suffixes (same behavior as before)
       const formatData = Object.fromEntries(
@@ -478,6 +484,8 @@ function StepForm({
       onSave(formatData, form, img);
     }, 450);
   }
+
+  const errorKeys = stepErrors.map((e) => e.key);
 
   return (
     <form
@@ -508,9 +516,16 @@ function StepForm({
             }
           }
 
+          const hasError = errorKeys.includes(v.key);
+
           return (
             <div key={v.key} className="flex flex-col space-y-1">
-              <label className="text-md font-medium text-gray-700">
+              <label
+                htmlFor={v.key}
+                className={`text-md font-medium ${
+                  hasError ? "text-red-600" : "text-gray-700"
+                }`}
+              >
                 {v.name}
                 {!isPowderedGloves && (
                   <span className="text-gray-400 text-xs ml-2">
@@ -527,9 +542,12 @@ function StepForm({
 
               {isPowderedGloves ? (
                 <select
+                  id={v.key}
                   value={form[v.key] ?? ""}
                   onChange={(e) => handleChange(e, v.key)}
-                  className="rounded-lg border px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
+                  className={`rounded-lg border px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 ${
+                    hasError ? "border-red-600" : "border-gray-300"
+                  }`}
                   disabled={batchLocked}
                 >
                   <option value="">Select Yes/No</option>
@@ -538,14 +556,23 @@ function StepForm({
                 </select>
               ) : (
                 <input
+                  id={v.key}
                   inputMode="decimal"
                   type="number"
                   value={form[v.key] ?? ""}
                   onChange={(e) => handleChange(e, v.key)}
-                  className="rounded-lg border px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
+                  className={`rounded-lg border px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 ${
+                    hasError ? "border-red-600" : "border-gray-300"
+                  }`}
                   placeholder={`Enter ${v.name}`}
                   disabled={batchLocked}
                 />
+              )}
+
+              {hasError && (
+                <p className="text-xs text-red-600 mt-1 font-medium">
+                  {stepErrors?.find((err) => err.key === v.key)?.message}
+                </p>
               )}
             </div>
           );
@@ -572,7 +599,7 @@ function StepForm({
         )}
       </div>
 
-      {!batchLocked && (
+      {!batchLocked && !stepSaved && (
         <button
           type="submit"
           disabled={saving || stepSaved}
