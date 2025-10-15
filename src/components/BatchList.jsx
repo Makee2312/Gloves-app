@@ -4,18 +4,10 @@ import { Search, Settings } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { setActiveBatch } from "../store/batchListSlice";
 import { getBatchStatus, getBatchColor } from "../reusables/getBatchStatus";
-// function getBatchStatus(batch) {
-//   return batch.status ?? batch.status !== ""
-//     ? batch.status
-//     : batch.steps[0]?.saved === true
-//     ? "In progress"
-//     : "Yet to start";
-// }
 
-export default function BatchList({ batchList }) {
+export default function BatchList({ batchList, searchText, setSearchText }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [searchText, setSearchText] = useState("");
   const [batchesWithStatus, setBatchesWithStatus] = useState(
     batchList
       ? batchList.map((batch) => ({
@@ -38,7 +30,7 @@ export default function BatchList({ batchList }) {
                     .toString()
                     .toLocaleLowerCase()
                     .includes(searchText.toLocaleLowerCase()) ||
-                  batch.status
+                  getBatchStatus(batch)
                     .toString()
                     .toLocaleLowerCase()
                     .includes(searchText.toLocaleLowerCase())
@@ -64,7 +56,7 @@ export default function BatchList({ batchList }) {
           : null
       );
     }
-  }, [searchText, batchList]);
+  }, [searchText, batchList, setSearchText]);
 
   return (
     <>
@@ -76,11 +68,10 @@ export default function BatchList({ batchList }) {
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
         />
-        <Settings className="w-4 h-4 text-gray-400" />
       </div>
       <div className="px-6 mt-5 text-sm font-semibold text-gray-600 grid grid-cols-2">
         <span>Batch list</span>
-        <span className="text-right">Date &amp; status</span>
+        <span className="text-right">Status &amp; date</span>
       </div>
       <div className="mt-2 mb-12 space-y-3 px-4 flex-1 overflow-y-auto">
         {batchesWithStatus
