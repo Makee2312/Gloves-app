@@ -98,7 +98,7 @@ const batchListSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(fetchBatchList.fulfilled, (state, action) => {
-      return (state = action.payload.data);
+      return (state = action.payload?.data || {});
     });
   },
 });

@@ -3,7 +3,7 @@ import { getBatchStatus } from "../reusables/getBatchStatus";
 import { Layers, CheckCircle2, Loader2, XCircle } from "lucide-react";
 
 export default function DashboardUpdates({ searchText, setSearchText }) {
-  const batchList = useSelector((state) => state.batchList.batchLs);
+  const batchList = useSelector((state) => state.batchList.batchLs) || [];
 
   function setBatches(value) {
     if (setSearchText) setSearchText(value);
