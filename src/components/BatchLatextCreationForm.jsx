@@ -239,7 +239,8 @@ export default function BatchLatexCreationForm({ onBack }) {
   }
 
   return (
-    <div className="min-h-screen w-full flex flex-col items-center bg-gray-100 pt-5 pb-10 px-2 md:px-0">
+    //<div className="min-h-screen w-full flex flex-col items-center bg-gray-100 pt-5 pb-10 px-2 md:px-0">
+       <div className=" space-y-2 mb-12">
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
@@ -286,8 +287,7 @@ export default function BatchLatexCreationForm({ onBack }) {
         </div>
       )}
 
-      {/* Main container */}
-      <div className="w-full max-w-6xl mx-auto bg-white rounded-xl shadow-lg p-6 space-y-6">
+     
         {/* Batch header */}
         <div className="sticky top-3 z-10 bg-white p-3 rounded-md shadow-sm border border-blue-50 text-center">
           <span className="text-md font-bold uppercase text-blue-700">Batch:</span>
@@ -385,7 +385,6 @@ export default function BatchLatexCreationForm({ onBack }) {
             ← Back to Main
           </button>
         </div>
-      </div>
     </div>
   );
 }

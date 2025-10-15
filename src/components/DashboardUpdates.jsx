@@ -3,7 +3,7 @@ import { getBatchStatus } from "../reusables/getBatchStatus";
 import { Layers, CheckCircle2, Loader2, XCircle } from "lucide-react";
 
 export default function DashboardUpdates({ searchText, setSearchText }) {
-  const batchList = useSelector((state) => state.batchList.batchLs);
+  const batchList = useSelector((state) => state.batchList.batchLs) || [];
 
   function setBatches(value) {
     if (setSearchText) setSearchText(value);
@@ -28,7 +28,7 @@ export default function DashboardUpdates({ searchText, setSearchText }) {
             <Layers className={iconBase} />
             <div className="text-left">
               <h3 className="text-xl font-bold drop-shadow-sm">
-                {batchList.length}
+                {batchList.length }
               </h3>
               <p className="text-sm mt-1 text-blue-100 font-medium tracking-wide">
                 Total Batches
