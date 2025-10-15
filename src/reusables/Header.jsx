@@ -7,8 +7,8 @@ export default function Header({ isDashboard }) {
   return (
     <header
       className="flex items-center justify-between px-4 sm:px-6 py-3 
-                       bg-gradient-to-r from-blue-400 via-blue-400 to-blue-300 
-                       shadow-lg backdrop-blur-md border-b border-blue-300"
+                       bg-gradient-to-r from-white to-white-300 
+                       shadow-lg backdrop-blur-md"
     >
       {/* Left: Logo + Title */}
       <div className="flex items-center gap-3">

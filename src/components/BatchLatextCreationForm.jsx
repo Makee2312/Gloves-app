@@ -145,9 +145,9 @@ export default function BatchLatexCreationForm({ onBack }) {
     if (idx > firstUnsaved) {
       const message = {
         stepIndex: firstUnsaved,
-        message: `Please complete (Step ${
-          firstUnsaved + 1
-        }: ${stepsConfig[firstUnsaved].title}) before proceeding.`,
+        message: `Please complete (Step ${firstUnsaved + 1}: ${
+          stepsConfig[firstUnsaved].title
+        }) before proceeding.`,
       };
       setModalErrors([message]);
       setModalSuccess("");
@@ -232,7 +232,7 @@ export default function BatchLatexCreationForm({ onBack }) {
 
   return (
     //<div className="min-h-screen w-full flex flex-col items-center bg-gray-100 pt-5 pb-10 px-2 md:px-0">
-       <div className=" space-y-2 mb-12">
+    <div className=" space-y-2 mb-12">
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
@@ -241,7 +241,9 @@ export default function BatchLatexCreationForm({ onBack }) {
               <>
                 <div className="flex items-center gap-3 mb-4">
                   <div className="text-2xl text-red-600">⚠️</div>
-                  <h3 className="text-lg font-semibold text-red-700 mt-2">Alert</h3>
+                  <h3 className="text-lg font-semibold text-red-700 mt-2">
+                    Alert
+                  </h3>
                 </div>
 
                 <div className="max-h-64 overflow-y-auto space-y-3">
@@ -276,104 +278,106 @@ export default function BatchLatexCreationForm({ onBack }) {
         </div>
       )}
 
-     
-        {/* Batch header */}
-        <div className="sticky top-3 z-10 bg-white p-3 rounded-md shadow-sm border border-blue-50 text-center">
-          <span className="text-md font-bold uppercase text-blue-700">Batch:</span>
-          <span className="text-base font-bold ml-2">
-            {activeBatch?.gloveBatchId ?? "—"}
-          </span>
-        </div>
+      {/* Batch header */}
+      <div className="sticky top-3 z-10 bg-white p-3 rounded-md shadow-sm border border-blue-50 text-center">
+        <span className="text-md font-bold uppercase text-blue-700">
+          Batch:
+        </span>
+        <span className="text-base font-bold ml-2">
+          {activeBatch?.gloveBatchId ?? "—"}
+        </span>
+      </div>
 
-        <div className="w-full flex text-sm mt-2 mx-2 my-2 mb-2 min-hitems-center justify-between overflow-hidden">
-          {stepsConfig.map((s, idx) => {
-            const completed = !!activeBatch?.steps?.[idx]?.saved;
-            const active = idx === stepIdx;
-            return (
-              <button
-                key={s.key}
-                type="button"
-                onClick={() => handleAttemptToSelectStep(idx)}
-                className={`flex-1 flex flex-col items-center py-2 px-1 focus:outline-none transition ${
-                  batchLocked ? "opacity-80" : "hover:scale-105"
+      <div className="w-full flex text-sm mt-2 mx-2 my-2 mb-2 min-hitems-center justify-between overflow-hidden">
+        {stepsConfig.map((s, idx) => {
+          const completed = !!activeBatch?.steps?.[idx]?.saved;
+          const active = idx === stepIdx;
+          return (
+            <button
+              key={s.key}
+              type="button"
+              onClick={() => handleAttemptToSelectStep(idx)}
+              className={`flex-1 flex flex-col items-center py-2 px-1 focus:outline-none transition ${
+                batchLocked ? "opacity-80" : "hover:scale-105"
+              }`}
+              aria-current={active ? "true" : "false"}
+            >
+              <div
+                className={`rounded-full w-8 h-8 flex items-center justify-center font-bold text-md shadow-md ${
+                  completed
+                    ? "bg-green-500 text-white"
+                    : active
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-200 text-gray-600"
                 }`}
-                aria-current={active ? "true" : "false"}
               >
-                <div
-                  className={`rounded-full w-8 h-8 flex items-center justify-center font-bold text-md shadow-md ${
-                    completed
-                      ? "bg-green-500 text-white"
-                      : active
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-200 text-gray-600"
-                  }`}
-                >
-                  {idx + 1}
-                </div>
-                <div
-                  className={`mt-2 text-xs text-center font-medium ${
-                    completed
-                      ? "text-green-600"
-                      : active
-                      ? "text-blue-600"
-                      : "text-gray-400"
-                  }`}
-                >
-                  {s.title}
-                </div>
-              </button>
-            );
-          })}
-        </div>
+                {idx + 1}
+              </div>
+              <div
+                className={`mt-2 text-xs text-center font-medium ${
+                  completed
+                    ? "text-green-600"
+                    : active
+                    ? "text-blue-600"
+                    : "text-gray-400"
+                }`}
+              >
+                {s.title}
+              </div>
+            </button>
+          );
+        })}
+      </div>
 
-        {/* Progress bar */}
-        <div className="mt-3 ">
-          <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
-            <div
-              className=" h-3 rounded-full bg-gradient-to-r from-blue-500 to-green-400 transition-all duration-700"
-              style={{
-                width: `${
-                  (stepsConfig.filter(
-                    (_, i) => !!activeBatch?.steps?.[i]?.saved
-                  ).length /
-                    stepsConfig.length) *
-                  100
-                }%`,
-              }}
-            />
-          </div>
+      {/* Progress bar */}
+      <div className="mt-3 ">
+        <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
+          <div
+            className=" h-3 rounded-full bg-gradient-to-r from-blue-500 to-green-400 transition-all duration-700"
+            style={{
+              width: `${
+                (stepsConfig.filter((_, i) => !!activeBatch?.steps?.[i]?.saved)
+                  .length /
+                  stepsConfig.length) *
+                100
+              }%`,
+            }}
+          />
         </div>
+      </div>
 
-        <StepForm
-          key={stepIdx}
-          stepIndex={stepIdx}
-          step={stepsConfig[stepIdx]}
-          data={stepData}
-          photo={stepPhoto}
-          onSave={stepIdx === stepsConfig.length - 1 ? handleFinish : handleStepSave}
-          validateAllSteps={(idx, formData) => {
-            // Only validate the current step with validateStep for error highlighting
-            return validateStep(idx, formData);
-          }}
-          onValidationFail={(errs) => {
-            setStepErrors(errs);
-          }}
-          getError={getStepError}
-          lastStep={stepIdx === stepsConfig.length - 1}
-          stepSaved={stepSaved}
-          batchLocked={batchLocked}
-          stepErrors={stepErrors}
-          setStepErrors={setStepErrors}
-        />
+      <StepForm
+        key={stepIdx}
+        stepIndex={stepIdx}
+        step={stepsConfig[stepIdx]}
+        data={stepData}
+        photo={stepPhoto}
+        onSave={
+          stepIdx === stepsConfig.length - 1 ? handleFinish : handleStepSave
+        }
+        validateAllSteps={(idx, formData) => {
+          // Only validate the current step with validateStep for error highlighting
+          return validateStep(idx, formData);
+        }}
+        onValidationFail={(errs) => {
+          setStepErrors(errs);
+        }}
+        getError={getStepError}
+        lastStep={stepIdx === stepsConfig.length - 1}
+        stepSaved={stepSaved}
+        batchLocked={batchLocked}
+        stepErrors={stepErrors}
+        setStepErrors={setStepErrors}
+      />
 
-        <div className="flex justify-end">
-          <button
-            onClick={() => navigate("/")}
-            className="px-4 py-2 rounded-lg bg-white text-blue-600 border border-blue-300 font-semibold hover:bg-blue-50"
-          >
-            ← Back to Main
-          </button>
-        </div>
+      <div className="flex justify-end">
+        <button
+          onClick={() => navigate("/")}
+          className="px-4 py-2 rounded-lg bg-white text-blue-600 border border-blue-300 font-semibold hover:bg-blue-50"
+        >
+          ← Back to Main
+        </button>
+      </div>
     </div>
   );
 }
@@ -510,7 +514,7 @@ function StepForm({
             <div key={v.key} className="flex flex-col space-y-1">
               <label
                 htmlFor={v.key}
-                className={"text-md font-medium text-gray-700"}
+                className={"text-sm block mb-1 font-medium text-gray-700"}
               >
                 {v.name}
                 {!isPowderedGloves && (
@@ -547,7 +551,7 @@ function StepForm({
                   type="number"
                   value={form[v.key] ?? ""}
                   onChange={(e) => handleChange(e, v.key)}
-                  className={`rounded-lg border px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 ${
+                  className={`rounded-lg border px-3 py-2 text-xs focus:ring-2 focus:ring-blue-400 focus:border-blue-400 ${
                     hasError ? "border-red-600" : "border-gray-300"
                   }`}
                   placeholder={`Enter ${v.name}`}
@@ -566,16 +570,25 @@ function StepForm({
       </div>
 
       <div className="mt-3">
-        <label className="text-md font-medium text-gray-700">
+        <label className="text-sm block mb-2 font-medium text-gray-700">
           Upload Photo (optional)
         </label>
         <input
           type="file"
           accept="image/*"
           onChange={handlePhoto}
-          className="mt-1 text-sm"
+          className="block w-full text-sm text-gray-700 
+             file:mr-4 file:py-1.5 file:px-3 
+             file:rounded-lg file:border-0 
+             file:text-sm file:font-medium
+             file:bg-gray-600 file:text-white 
+             hover:file:bg-gray-700 
+             disabled:opacity-50 disabled:cursor-not-allowed
+             rounded-md cursor-pointer 
+             focus:outline-none focus:ring-2 focus:ring-blue-400"
           disabled={stepSaved || batchLocked}
         />
+
         {img && (
           <img
             src={img}
