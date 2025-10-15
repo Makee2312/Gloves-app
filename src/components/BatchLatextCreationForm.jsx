@@ -90,7 +90,7 @@ export default function BatchLatexCreationForm({ onBack }) {
         errors.push({
           stepIndex,
           key,
-          message: `${step.title}: ${v.name} is required.`,
+          message: `Value is required.`,
         });
         continue;
       }
@@ -145,9 +145,9 @@ export default function BatchLatexCreationForm({ onBack }) {
     if (idx > firstUnsaved) {
       const message = {
         stepIndex: firstUnsaved,
-        message: `Please complete "${stepsConfig[firstUnsaved].title}" (Step ${
+        message: `Please complete (Step ${
           firstUnsaved + 1
-        }) before proceeding.`,
+        }: ${stepsConfig[firstUnsaved].title}) before proceeding.`,
       };
       setModalErrors([message]);
       setModalSuccess("");
@@ -205,14 +205,6 @@ export default function BatchLatexCreationForm({ onBack }) {
       ),
     };
 
-    // const errors = validateAllSteps(mergedBatch);
-    // if (errors.length > 0) {
-    //   setModalErrors(errors);
-    //   setModalSuccess("");
-    //   setShowModal(true);
-    //   setStepIdx(errors[0].stepIndex);
-    //   return;
-    // }
     setStepErrors([]);
     setModalSuccess("🎉 Batch completed successfully!");
     setShowModal(true);
@@ -248,8 +240,8 @@ export default function BatchLatexCreationForm({ onBack }) {
             {modalErrors && modalErrors.length > 0 ? (
               <>
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="text-3xl text-red-600">⚠️</div>
-                  <h3 className="text-lg font-semibold text-red-700">Alert</h3>
+                  <div className="text-2xl text-red-600">⚠️</div>
+                  <h3 className="text-lg font-semibold text-red-700 mt-2">Alert</h3>
                 </div>
 
                 <div className="max-h-64 overflow-y-auto space-y-3">
@@ -259,9 +251,6 @@ export default function BatchLatexCreationForm({ onBack }) {
                       className="p-3 bg-red-50 border border-red-200 rounded text-sm text-red-800"
                     >
                       <div className="font-medium">{e.message}</div>
-                      <div className="text-xs text-gray-500 mt-1">
-                        Step {e.stepIndex + 1}: {stepsConfig[e.stepIndex]?.title}
-                      </div>
                     </div>
                   ))}
                 </div>
@@ -521,9 +510,7 @@ function StepForm({
             <div key={v.key} className="flex flex-col space-y-1">
               <label
                 htmlFor={v.key}
-                className={`text-md font-medium ${
-                  hasError ? "text-red-600" : "text-gray-700"
-                }`}
+                className={"text-md font-medium text-gray-700"}
               >
                 {v.name}
                 {!isPowderedGloves && (
