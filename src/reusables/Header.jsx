@@ -1,39 +1,53 @@
 import glove from "../glove_192.jpg";
 import { Settings } from "lucide-react";
-
 import { useNavigate } from "react-router-dom";
 
 export default function Header({ isDashboard }) {
   const navigate = useNavigate();
   return (
-    <header className="sticky top-0 z-50 flex items-center justify-between px-4 sm:px-6 py-3 bg-gradient-to-r from-blue-900 via-blue-800 to-blue-700 shadow-md">
-      {/* Left: App Title */}
-      <div className="flex items-center gap-2">
+    <header
+      className="flex items-center justify-between px-4 sm:px-6 py-3 
+                       bg-gradient-to-r from-blue-300 via-blue-500 to-blue-200 
+                       shadow-lg backdrop-blur-md border-b border-blue-300"
+    >
+      {/* Left: Logo + Title */}
+      <div className="flex items-center gap-3">
         <img
           src={glove}
           alt="Logo"
-          className="w-8 h-8 rounded-full border border-white/40"
+          className="w-10 h-10 rounded-full border-2 border-white/50 shadow-md"
         />
-        <h1 className="text-white text-lg sm:text-xl font-semibold tracking-wide">
+        <h1 className="text-blue-900 text-xl sm:text-xl font-bold tracking-wide drop-shadow-md">
           Glove Manufacturing
         </h1>
       </div>
 
-      {/* Right: Status + Optional Profile */}
-      <div className="flex items-center gap-4">
-        {/* Network status */}
+      {/* Right: Status + Settings + User */}
+      <div className="flex items-center gap-5">
+        {/* Network Status */}
         <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse"></span>
-          <span className="text-sm text-red-200 font-medium">Offline</span>
+          <span className="w-3 h-3 bg-red-400 rounded-full animate-pulse shadow-inner"></span>
+          <span className="text-sm text-red-700 font-semibold">Offline</span>
         </div>
+
+        {/* Settings Icon */}
         <Settings
-          className="w-6 h-6 text-white hover:text-blue-200 animate-spin-slow"
+          className="w-6 h-6 text-blue-900 hover:text-blue-700 transition-colors duration-300 cursor-pointer hover:scale-110"
           onClick={() => navigate("/settings")}
         />
-        {/* Optional: User info (visible on dashboard only) */}
+
+        {/* Optional: User Info */}
         {isDashboard && (
-          <div className="hidden sm:flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium px-3 py-1.5 rounded-lg transition">
-            <img src={glove} alt="User" className="w-7 h-7 rounded-full" />
+          <div
+            className="hidden sm:flex items-center gap-2 bg-blue-500 hover:bg-blue-400 
+                          text-white text-sm font-medium px-4 py-2 rounded-xl shadow-md 
+                          transition transform hover:-translate-y-0.5 hover:scale-105"
+          >
+            <img
+              src={glove}
+              alt="User"
+              className="w-8 h-8 rounded-full border-2 border-white/50"
+            />
             <span>Test User</span>
           </div>
         )}
