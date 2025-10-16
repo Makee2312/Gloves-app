@@ -99,7 +99,674 @@ const batchListSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(fetchBatchList.fulfilled, (state, action) => {
-      return (state = action.payload?.data || {});
+      console.log( action.payload?.data )
+      return (state = action.payload?.data || {
+        "batchLs": [
+            {
+                "gloveBatchId": 10001,
+                "status": "In progress",
+                "createdDate": "16/10/2025",
+                "batchCount": "100",
+                "steps": [
+                    {
+                        "processType": "latexPreparation",
+                        "data": {
+                            "sulfur": "5 grams",
+                            "zincOxide": "3 grams",
+                            "accelerators": "1 grams",
+                            "antioxidants": "1 grams",
+                            "stabilizers": "2 grams",
+                            "compoundingTime": "10 minutes",
+                            "compoundingTemp": "60 °C",
+                            "compoundViscosity": "500 cP",
+                            "finalPh": "7 pH"
+                        },
+                        "photo": null,
+                        "saved": true,
+                        "saved_date": "16-10-2025 13:06:05"
+                    },
+                    {
+                        "processType": "formerPreparation",
+                        "data": {
+                            "waterTemp": "25 °C",
+                            "chlorineConc": "200 ppm",
+                            "coagulantPh": "4 pH",
+                            "immersionSpeed": "10 cm/s",
+                            "dwellTime": "60 seconds"
+                        },
+                        "photo": null,
+                        "saved": true,
+                        "saved_date": "16-10-2025 13:06:05"
+                    },
+                    {
+                        "processType": "leaching",
+                        "data": {
+                            "waterTemp": "40 °C",
+                            "flowRate": "50 L/min",
+                            "duration": "60 minutes"
+                        },
+                        "photo": null,
+                        "saved": true,
+                        "saved_date": "16-10-2025 13:06:05"
+                    },
+                    {
+                        "processType": "finishing",
+                        "data": {},
+                        "photo": null,
+                        "saved": false
+                    },
+                    {
+                        "processType": "qc",
+                        "data": {},
+                        "photo": null,
+                        "saved": false
+                    }
+                ]
+            },
+            {
+                "gloveBatchId": 10002,
+                "status": "Completed",
+                "createdDate": "16/10/2025",
+                "batchCount": "200",
+                "steps": [
+                    {
+                        "processType": "latexPreparation",
+                        "data": {
+                            "sulfur": "5 grams",
+                            "zincOxide": "3 grams",
+                            "accelerators": "1 grams",
+                            "antioxidants": "1.5 grams",
+                            "stabilizers": "2 grams",
+                            "compoundingTime": "10 minutes",
+                            "compoundingTemp": "60 °C",
+                            "compoundViscosity": "2000 cP",
+                            "finalPh": "8 pH"
+                        },
+                        "photo": null,
+                        "saved": true,
+                        "saved_date": "16-10-2025 13:06:05"
+                    },
+                    {
+                        "processType": "formerPreparation",
+                        "data": {
+                            "waterTemp": "45 °C",
+                            "chlorineConc": "200 ppm",
+                            "coagulantPh": "6 pH",
+                            "immersionSpeed": "10 cm/s",
+                            "dwellTime": "60 seconds"
+                        },
+                        "photo": null,
+                        "saved": true,
+                        "saved_date": "16-10-2025 13:06:05"
+                    },
+                    {
+                        "processType": "leaching",
+                        "data": {
+                            "waterTemp": "40 °C",
+                            "flowRate": "50 L/min",
+                            "duration": "60 minutes"
+                        },
+                        "photo": null,
+                        "saved": true,
+                        "saved_date": "16-10-2025 13:06:05"
+                    },
+                    {
+                        "processType": "finishing",
+                        "data": {
+                            "rollerSpeed": "300 rpm",
+                            "rollerPressure": "1 MPa",
+                            "powderedGloves": "yes yes/no",
+                            "polymerConc": "17 g/L",
+                            "cornstarchThickness": " mm",
+                            "chlorineConcentration": "200 ppm",
+                            "chlorineTime": "10 seconds"
+                        },
+                        "photo": null,
+                        "saved": true,
+                        "saved_date": "16-10-2025 13:06:05"
+                    },
+                    {
+                        "processType": "qc",
+                        "data": [
+                            {
+                                "type": "Visual inspection",
+                                "results": {
+                                    "visualInspectionMethod": "Test",
+                                    "defectType": "Test",
+                                    "visualDefectCount": "20"
+                                }
+                            },
+                            {
+                                "type": " Water-tightness test",
+                                "results": {
+                                    "waterTightnessAql": "2",
+                                    "waterTightnessPassCount": "100",
+                                    "waterTightnessFailCount": "10"
+                                }
+                            },
+                            {
+                                "type": "Physical property tests",
+                                "results": {
+                                    "forceAtBreak": "18",
+                                    "elongationAtBreak": "900",
+                                    "tensileStrength": "30"
+                                }
+                            },
+                            {
+                                "type": "Dimensional tests",
+                                "results": {
+                                    "gloveLength": "220",
+                                    "palmWidth": "70",
+                                    "gloveThickness": "0.2"
+                                }
+                            },
+                            {
+                                "type": "Sterility test",
+                                "results": {
+                                    "sterilityResult": "pass"
+                                }
+                            },
+                            {
+                                "type": "Biocompatibility test",
+                                "results": {
+                                    "biocompatibilityResult": "fail"
+                                }
+                            },
+                            {
+                                "type": "Packaging data",
+                                "results": {
+                                    "packagingID": "101",
+                                    "testResultsSummary": "test",
+                                    "sterilizationDetails": "test",
+                                    "comments": "test"
+                                }
+                            }
+                        ],
+                        "photo": null,
+                        "saved": true,
+                        "saved_date": "16-10-2025 13:06:05"
+                    }
+                ]
+            },
+            {
+                "gloveBatchId": 10003,
+                "status": "In QC",
+                "createdDate": "16/10/2025",
+                "batchCount": "500",
+                "steps": [
+                    {
+                        "processType": "latexPreparation",
+                        "data": {
+                            "sulfur": "5 grams",
+                            "zincOxide": "3 grams",
+                            "accelerators": "1 grams",
+                            "antioxidants": "1 grams",
+                            "stabilizers": "2 grams",
+                            "compoundingTime": "10 minutes",
+                            "compoundingTemp": "60 °C",
+                            "compoundViscosity": "500 cP",
+                            "finalPh": "7 pH"
+                        },
+                        "photo": null,
+                        "saved": true,
+                        "saved_date": "16-10-2025 13:06:05"
+                    },
+                    {
+                        "processType": "formerPreparation",
+                        "data": {
+                            "waterTemp": "25 °C",
+                            "chlorineConc": "200 ppm",
+                            "coagulantPh": "4 pH",
+                            "immersionSpeed": "10 cm/s",
+                            "dwellTime": "60 seconds"
+                        },
+                        "photo": null,
+                        "saved": true,
+                        "saved_date": "16-10-2025 13:06:05"
+                    },
+                    {
+                        "processType": "leaching",
+                        "data": {
+                            "waterTemp": "40 °C",
+                            "flowRate": "50 L/min",
+                            "duration": "60 minutes"
+                        },
+                        "photo": null,
+                        "saved": true,
+                        "saved_date": "16-10-2025 13:06:05"
+                    },
+                    {
+                        "processType": "finishing",
+                        "data": {
+                            "rollerSpeed": "50 rpm",
+                            "rollerPressure": "1 MPa",
+                            "powderedGloves": "no yes/no",
+                            "polymerConc": " g/L",
+                            "cornstarchThickness": "0.5 mm",
+                            "chlorineConcentration": "200 ppm",
+                            "chlorineTime": "10 seconds"
+                        },
+                        "photo": null,
+                        "saved": true,
+                        "saved_date": "16-10-2025 13:06:05"
+                    },
+                    {
+                        "processType": "qc",
+                        "data": {},
+                        "photo": null,
+                        "saved": false
+                    }
+                ]
+            },
+            {
+                "gloveBatchId": 10004,
+                "status": "Completed",
+                "createdDate": "16/10/2025",
+                "batchCount": "100",
+                "steps": [
+                    {
+                        "processType": "latexPreparation",
+                        "data": {
+                            "sulfur": "0.5 grams",
+                            "zincOxide": "0.1 grams",
+                            "accelerators": "1 grams",
+                            "antioxidants": "1 grams",
+                            "stabilizers": "2 grams",
+                            "compoundingTime": "10 minutes",
+                            "compoundingTemp": "60 °C",
+                            "compoundViscosity": "1000 cP",
+                            "finalPh": "7 pH"
+                        },
+                        "photo": null,
+                        "saved": true,
+                        "saved_date": "16-10-2025 13:06:05"
+                    },
+                    {
+                        "processType": "formerPreparation",
+                        "data": {
+                            "waterTemp": "45 °C",
+                            "chlorineConc": "200 ppm",
+                            "coagulantPh": "4 pH",
+                            "immersionSpeed": "10 cm/s",
+                            "dwellTime": "60 seconds"
+                        },
+                        "photo": null,
+                        "saved": true,
+                        "saved_date": "16-10-2025 13:06:05"
+                    },
+                    {
+                        "processType": "leaching",
+                        "data": {
+                            "waterTemp": "80 °C",
+                            "flowRate": "50 L/min",
+                            "duration": "60 minutes"
+                        },
+                        "photo": null,
+                        "saved": true,
+                        "saved_date": "16-10-2025 13:06:05"
+                    },
+                    {
+                        "processType": "finishing",
+                        "data": {
+                            "rollerSpeed": "300 rpm",
+                            "rollerPressure": "1 MPa",
+                            "powderedGloves": "yes yes/no",
+                            "polymerConc": "17 g/L",
+                            "cornstarchThickness": " mm",
+                            "chlorineConcentration": "200 ppm",
+                            "chlorineTime": "10 seconds"
+                        },
+                        "photo": null,
+                        "saved": true,
+                        "saved_date": "16-10-2025 13:06:05"
+                    },
+                    {
+                        "processType": "qc",
+                        "data": [
+                            {
+                                "type": "Visual inspection",
+                                "results": {
+                                    "visualInspectionMethod": "test",
+                                    "defectType": "NA",
+                                    "visualDefectCount": "0"
+                                }
+                            },
+                            {
+                                "type": " Water-tightness test",
+                                "results": {
+                                    "waterTightnessAql": "2",
+                                    "waterTightnessPassCount": "100",
+                                    "waterTightnessFailCount": "0"
+                                }
+                            },
+                            {
+                                "type": "Physical property tests",
+                                "results": {
+                                    "forceAtBreak": "6",
+                                    "elongationAtBreak": "500",
+                                    "tensileStrength": "14"
+                                }
+                            },
+                            {
+                                "type": "Dimensional tests",
+                                "results": {
+                                    "gloveLength": "220",
+                                    "palmWidth": "70",
+                                    "gloveThickness": "0.2"
+                                }
+                            },
+                            {
+                                "type": "Sterility test",
+                                "results": {
+                                    "sterilityResult": "pass"
+                                }
+                            },
+                            {
+                                "type": "Biocompatibility test",
+                                "results": {
+                                    "biocompatibilityResult": "pass"
+                                }
+                            },
+                            {
+                                "type": "Packaging data",
+                                "results": {
+                                    "packagingID": "101",
+                                    "testResultsSummary": "test",
+                                    "sterilizationDetails": "test",
+                                    "comments": "test"
+                                }
+                            }
+                        ],
+                        "photo": null,
+                        "saved": true,
+                        "saved_date": "16-10-2025 13:06:05"
+                    }
+                ]
+            },
+            {
+                "gloveBatchId": 10005,
+                "status": "In QC",
+                "createdDate": "16/10/2025",
+                "batchCount": "200",
+                "steps": [
+                    {
+                        "processType": "latexPreparation",
+                        "data": {
+                            "sulfur": "5 grams",
+                            "zincOxide": "3 grams",
+                            "accelerators": "1 grams",
+                            "antioxidants": "1 grams",
+                            "stabilizers": "2 grams",
+                            "compoundingTime": "10 minutes",
+                            "compoundingTemp": "60 °C",
+                            "compoundViscosity": "500 cP",
+                            "finalPh": "7 pH"
+                        },
+                        "photo": null,
+                        "saved": true,
+                        "saved_date": "16-10-2025 13:06:05"
+                    },
+                    {
+                        "processType": "formerPreparation",
+                        "data": {
+                            "waterTemp": "25 °C",
+                            "chlorineConc": "200 ppm",
+                            "coagulantPh": "4 pH",
+                            "immersionSpeed": "10 cm/s",
+                            "dwellTime": "60 seconds"
+                        },
+                        "photo": null,
+                        "saved": true,
+                        "saved_date": "16-10-2025 13:06:05"
+                    },
+                    {
+                        "processType": "leaching",
+                        "data": {
+                            "waterTemp": "80 °C",
+                            "flowRate": "50 L/min",
+                            "duration": "60 minutes"
+                        },
+                        "photo": null,
+                        "saved": true,
+                        "saved_date": "16-10-2025 13:06:05"
+                    },
+                    {
+                        "processType": "finishing",
+                        "data": {
+                            "rollerSpeed": "50 rpm",
+                            "rollerPressure": "0.1 MPa",
+                            "powderedGloves": "yes yes/no",
+                            "polymerConc": "20 g/L",
+                            "cornstarchThickness": " mm",
+                            "chlorineConcentration": "200 ppm",
+                            "chlorineTime": "10 seconds"
+                        },
+                        "photo": null,
+                        "saved": true,
+                        "saved_date": "16-10-2025 13:06:05"
+                    },
+                    {
+                        "processType": "qc",
+                        "data": {},
+                        "photo": null,
+                        "saved": false
+                    }
+                ]
+            },
+            {
+                "gloveBatchId": 10006,
+                "status": "In progress",
+                "createdDate": "16/10/2025",
+                "batchCount": "600",
+                "steps": [
+                    {
+                        "processType": "latexPreparation",
+                        "data": {
+                            "sulfur": "3 grams",
+                            "zincOxide": "3 grams",
+                            "accelerators": "1 grams",
+                            "antioxidants": "1 grams",
+                            "stabilizers": "2 grams",
+                            "compoundingTime": "10 minutes",
+                            "compoundingTemp": "60 °C",
+                            "compoundViscosity": "1992 cP",
+                            "finalPh": "8 pH"
+                        },
+                        "photo": null,
+                        "saved": true,
+                        "saved_date": "16-10-2025 13:06:05"
+                    },
+                    {
+                        "processType": "formerPreparation",
+                        "data": {},
+                        "photo": null,
+                        "saved": false
+                    },
+                    {
+                        "processType": "leaching",
+                        "data": {},
+                        "photo": null,
+                        "saved": false
+                    },
+                    {
+                        "processType": "finishing",
+                        "data": {},
+                        "photo": null,
+                        "saved": false
+                    },
+                    {
+                        "processType": "qc",
+                        "data": {},
+                        "photo": null,
+                        "saved": false
+                    }
+                ]
+            },
+            {
+                "gloveBatchId": 10007,
+                "status": "Yet to start",
+                "createdDate": "16/10/2025",
+                "batchCount": "10000",
+                "steps": [
+                    {
+                        "processType": "latexPreparation",
+                        "data": {},
+                        "photo": null,
+                        "saved": false
+                    },
+                    {
+                        "processType": "formerPreparation",
+                        "data": {},
+                        "photo": null,
+                        "saved": false
+                    },
+                    {
+                        "processType": "leaching",
+                        "data": {},
+                        "photo": null,
+                        "saved": false
+                    },
+                    {
+                        "processType": "finishing",
+                        "data": {},
+                        "photo": null,
+                        "saved": false
+                    },
+                    {
+                        "processType": "qc",
+                        "data": {},
+                        "photo": null,
+                        "saved": false
+                    }
+                ]
+            }
+        ],
+        "activeBatch": {
+            "gloveBatchId": 10002,
+            "status": "Completed",
+            "createdDate": "16/10/2025",
+            "batchCount": "200",
+            "steps": [
+                {
+                    "processType": "latexPreparation",
+                    "data": {
+                        "sulfur": "5 grams",
+                        "zincOxide": "3 grams",
+                        "accelerators": "1 grams",
+                        "antioxidants": "1.5 grams",
+                        "stabilizers": "2 grams",
+                        "compoundingTime": "10 minutes",
+                        "compoundingTemp": "60 °C",
+                        "compoundViscosity": "2000 cP",
+                        "finalPh": "8 pH"
+                    },
+                    "photo": null,
+                    "saved": true,
+                    "saved_date": "16-10-2025 13:06:05"
+                },
+                {
+                    "processType": "formerPreparation",
+                    "data": {
+                        "waterTemp": "45 °C",
+                        "chlorineConc": "200 ppm",
+                        "coagulantPh": "6 pH",
+                        "immersionSpeed": "10 cm/s",
+                        "dwellTime": "60 seconds"
+                    },
+                    "photo": null,
+                    "saved": true,
+                    "saved_date": "16-10-2025 13:06:05"
+                },
+                {
+                    "processType": "leaching",
+                    "data": {
+                        "waterTemp": "40 °C",
+                        "flowRate": "50 L/min",
+                        "duration": "60 minutes"
+                    },
+                    "photo": null,
+                    "saved": true,
+                    "saved_date": "16-10-2025 13:06:05"
+                },
+                {
+                    "processType": "finishing",
+                    "data": {
+                        "rollerSpeed": "300 rpm",
+                        "rollerPressure": "1 MPa",
+                        "powderedGloves": "yes yes/no",
+                        "polymerConc": "17 g/L",
+                        "cornstarchThickness": " mm",
+                        "chlorineConcentration": "200 ppm",
+                        "chlorineTime": "10 seconds"
+                    },
+                    "photo": null,
+                    "saved": true,
+                    "saved_date": "16-10-2025 13:06:05"
+                },
+                {
+                    "processType": "qc",
+                    "data": [
+                        {
+                            "type": "Visual inspection",
+                            "results": {
+                                "visualInspectionMethod": "Test",
+                                "defectType": "Test",
+                                "visualDefectCount": "20"
+                            }
+                        },
+                        {
+                            "type": " Water-tightness test",
+                            "results": {
+                                "waterTightnessAql": "2",
+                                "waterTightnessPassCount": "100",
+                                "waterTightnessFailCount": "10"
+                            }
+                        },
+                        {
+                            "type": "Physical property tests",
+                            "results": {
+                                "forceAtBreak": "18",
+                                "elongationAtBreak": "900",
+                                "tensileStrength": "30"
+                            }
+                        },
+                        {
+                            "type": "Dimensional tests",
+                            "results": {
+                                "gloveLength": "220",
+                                "palmWidth": "70",
+                                "gloveThickness": "0.2"
+                            }
+                        },
+                        {
+                            "type": "Sterility test",
+                            "results": {
+                                "sterilityResult": "pass"
+                            }
+                        },
+                        {
+                            "type": "Biocompatibility test",
+                            "results": {
+                                "biocompatibilityResult": "fail"
+                            }
+                        },
+                        {
+                            "type": "Packaging data",
+                            "results": {
+                                "packagingID": "101",
+                                "testResultsSummary": "test",
+                                "sterilizationDetails": "test",
+                                "comments": "test"
+                            }
+                        }
+                    ],
+                    "photo": null,
+                    "saved": true,
+                    "saved_date": "16-10-2025 13:06:05"
+                }
+            ]
+        }
+    })
     });
   },
 });
