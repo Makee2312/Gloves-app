@@ -21,16 +21,22 @@ export function getBatchStatus(batch) {
       batch.steps?.find((s) => s.processType?.toLowerCase().includes("qc")) ??
       {};
 
-    // ✅ Safely check if QC failed
+    // ✅ Safely check if QC failed (handles number-like strings too)
     const hasFailedQC = qcStep?.data?.some((stepData) =>
       qcFalseVariables.some((key) => {
         const value = stepData?.results?.[key];
+
+        // Convert string numbers like "2" or "05" into real numbers
+        const numericValue =
+          typeof value === "string" && !isNaN(value.trim()) ? parseFloat(value.trim()) : value;
+
         return (
-          (typeof value === "number" && value > 0) ||
+          (typeof numericValue === "number" && numericValue > 0) ||
           (typeof value === "string" && value.toLowerCase() === "fail")
         );
       })
     );
+
 
     if (hasFailedQC) {
       return "QC Failed";
@@ -52,10 +58,10 @@ export function getBatchColor(batchStatus) {
   return batchStatus === "Completed"
     ? "bg-green-100 text-green-700"
     : batchStatus === "QC Failed"
-    ? "bg-red-100 text-red-700"
-    : batchStatus === "In QC"
-    ? "bg-pink-100 text-pink-600"
-    : batchStatus === "In progress"
-    ? "bg-yellow-100 text-yellow-600"
-    : "bg-gray-100 text-gray-600";
+      ? "bg-red-100 text-red-700"
+      : batchStatus === "In QC"
+        ? "bg-pink-100 text-pink-600"
+        : batchStatus === "In progress"
+          ? "bg-yellow-100 text-yellow-600"
+          : "bg-gray-100 text-gray-600";
 }
