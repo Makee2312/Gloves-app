@@ -59,13 +59,20 @@ function detectQcFailures(batch) {
           if (qcFalseVariables && Array.isArray(qcFalseVariables)) {
             qcFalseVariables.forEach((falseKey) => {
               if (k === falseKey) {
-                if (
-                  (typeof v === "number" && v > 0) ||
-                  (typeof v === "string" && String(v).toLowerCase() === "fail")
-                ) {
+                // Convert "1", "05" → 1, 5 for numeric comparisons
+                const numericValue =
+                  typeof v === "string" && !isNaN(v.trim()) ? parseFloat(v.trim()) : v;
+
+                const isFailed =
+                  (typeof numericValue === "number" && numericValue > 0) ||
+                  (typeof v === "string" && v.toLowerCase() === "fail");
+
+                if (isFailed) {
                   result.totalFails += 1;
                   result.failByStep[step.processType] =
                     (result.failByStep[step.processType] || 0) + 1;
+
+                  // Avoid duplicate fail details for the same field
                   if (!result.failDetails.some((f) => f.field === k)) {
                     result.failDetails.push({
                       batchId: batch.gloveBatchId,
@@ -207,11 +214,10 @@ export default function BatchProgress() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 py-3 px-3 sm:px-6 lg:px-8 mb-9">
+    <div className="min-h-screen bg-gray-50 py-3 px-3 sm:px-6 lg:px-8 mb-12">
       <div className="max-w-6xl mx-auto space-y-4">
         {/* ----------------- Continuous Monitoring Dashboard (MOBILE-FIRST) ----------------- */}
         <section className="space-y-3">
-          {/* QC Failed */}
           {/* QC Failed */}
           <div>
             <div className="flex items-center justify-between mb-2">
@@ -282,9 +288,8 @@ export default function BatchProgress() {
                       <div className="mt-3 border-t border-gray-100 pt-3">
                         <div className="text-xs text-gray-500 mb-1">
                           {failList.length > 0
-                            ? `${failList.length} failure${
-                                failList.length > 1 ? "s" : ""
-                              }`
+                            ? `${failList.length} failure${failList.length > 1 ? "s" : ""
+                            }`
                             : "No details available"}
                         </div>
 
@@ -539,9 +544,8 @@ export default function BatchProgress() {
                     const batchStatus = getBatchStatus(currentBatch);
                     return (
                       <span
-                        className={`inline-block px-3 py-1 rounded-full font-semibold text-xs tracking-wide select-none ${
-                          getBatchColor(batchStatus) + " ring-1 ring-inset"
-                        }`}
+                        className={`inline-block px-3 py-1 rounded-full font-semibold text-xs tracking-wide select-none ${getBatchColor(batchStatus) + " ring-1 ring-inset"
+                          }`}
                         aria-label={`Batch status: ${batchStatus}`}
                       >
                         {batchStatus}
@@ -560,29 +564,27 @@ export default function BatchProgress() {
                   aria-valuemax={100}
                   aria-valuenow={
                     currentBatch.steps?.filter((s) => s.saved)?.length ===
-                    currentBatch.steps?.length
+                      currentBatch.steps?.length
                       ? 100
                       : (100 *
-                          (currentBatch.steps?.filter((s) => s.saved)?.length ||
-                            0)) /
-                        (currentBatch.steps?.length || 1)
+                        (currentBatch.steps?.filter((s) => s.saved)?.length ||
+                          0)) /
+                      (currentBatch.steps?.length || 1)
                   }
                 >
                   <motion.div
-                    className={`h-3 rounded-full ${
-                      currentBatch.steps?.filter((s) => s.saved)?.length ===
+                    className={`h-3 rounded-full ${currentBatch.steps?.filter((s) => s.saved)?.length ===
                       currentBatch.steps?.length
-                        ? "bg-green-500"
-                        : "bg-yellow-400"
-                    }`}
+                      ? "bg-green-500"
+                      : "bg-yellow-400"
+                      }`}
                     initial={{ width: 0 }}
                     animate={{
-                      width: `${
-                        (100 *
-                          (currentBatch.steps?.filter((s) => s.saved)?.length ||
-                            0)) /
+                      width: `${(100 *
+                        (currentBatch.steps?.filter((s) => s.saved)?.length ||
+                          0)) /
                         (currentBatch.steps?.length || 1)
-                      }%`,
+                        }%`,
                     }}
                     transition={{ duration: 0.8, ease: "easeOut" }}
                   />
@@ -601,11 +603,10 @@ export default function BatchProgress() {
                         aria-selected={isActive}
                         role="tab"
                         tabIndex={isActive ? 0 : -1}
-                        className={`whitespace-nowrap py-3 px-3 text-xs font-medium rounded-lg ${
-                          isActive
-                            ? "mt-2 mx-2 text-indigo-700 bg-indigo-100"
-                            : "text-gray-600 hover:text-indigo-600 hover:border-indigo-300"
-                        }`}
+                        className={`whitespace-nowrap py-3 px-3 text-xs font-medium rounded-lg ${isActive
+                          ? "mt-2 mx-2 text-indigo-700 bg-indigo-100"
+                          : "text-gray-600 hover:text-indigo-600 hover:border-indigo-300"
+                          }`}
                       >
                         Step {idx + 1}
                       </button>
@@ -639,11 +640,10 @@ export default function BatchProgress() {
 
                         <div className="grid gap-1 text-right">
                           <span
-                            className={`text-xs px-4 py-0.5 rounded-full font-medium ${
-                              activeStep.saved
-                                ? "bg-green-100 text-green-700"
-                                : "bg-gray-100 text-gray-500"
-                            }`}
+                            className={`text-xs px-4 py-0.5 rounded-full font-medium ${activeStep.saved
+                              ? "bg-green-100 text-green-700"
+                              : "bg-gray-100 text-gray-500"
+                              }`}
                           >
                             {activeStep.saved ? "Completed" : "Not Saved"}
                           </span>
@@ -656,11 +656,10 @@ export default function BatchProgress() {
 
                       {/* Step Data */}
                       <div
-                        className={`grid ${
-                          activeStep.processType === "qc"
-                            ? "grid-cols-1"
-                            : "grid-cols-2"
-                        } gap-2 m-0 p-0`}
+                        className={`grid ${activeStep.processType === "qc"
+                          ? "grid-cols-1"
+                          : "grid-cols-2"
+                          } gap-2 m-0 p-0`}
                       >
                         {Object.entries(activeStep.data).map(([key, value]) => {
                           if (activeStep.processType === "qc") {
@@ -676,30 +675,35 @@ export default function BatchProgress() {
                                 <ul className="divide-y divide-gray-100">
                                   {Object.entries(results).map(([k, v]) => {
                                     const qcFailed = qcFalseVariables.some(
-                                      (falseKey) =>
-                                        k === falseKey &&
-                                        ((typeof v === "number" && v > 0) ||
-                                          (typeof v === "string" &&
-                                            v.toLowerCase() === "fail"))
-                                    );
+
+                                      (falseKey) => {
+                                        if (k !== falseKey) return false;
+
+                                        const numericValue =
+                                          typeof v === "string" && !isNaN(v.trim()) ? parseFloat(v.trim()) : v;
+
+                                        return (
+                                          (typeof numericValue === "number" && numericValue > 0) ||
+                                          (typeof v === "string" && v.toLowerCase() === "fail")
+                                        );
+                                      });
+
                                     return (
                                       <li
                                         key={k}
-                                        className={`flex justify-between items-center px-4 py-2 text-sm sm:text-base transition-colors duration-150 ${
-                                          qcFailed
-                                            ? "bg-red-50 text-red-700 font-semibold border-l-4 border-red-400"
-                                            : "hover:bg-indigo-50"
-                                        }`}
+                                        className={`flex justify-between items-center px-4 py-2 text-sm sm:text-base transition-colors duration-150 ${qcFailed
+                                          ? "bg-red-50 text-red-700 font-semibold border-l-4 border-red-400"
+                                          : "hover:bg-indigo-50"
+                                          }`}
                                       >
                                         <span className="capitalize font-medium text-[9px] text-gray-700">
                                           {k.replace(/([A-Z])/g, " $1")}
                                         </span>
                                         <span
-                                          className={`font-semibold text-[10px] ${
-                                            qcFailed
-                                              ? "text-red-700"
-                                              : "text-gray-900"
-                                          }`}
+                                          className={`font-semibold text-[10px] ${qcFailed
+                                            ? "text-red-700"
+                                            : "text-gray-900"
+                                            }`}
                                         >
                                           {v?.toString() ?? "—"}
                                         </span>
