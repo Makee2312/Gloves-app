@@ -14,35 +14,39 @@ const navItems = [
 export default function Footer() {
   const batchList = useSelector((state) => state.batchList);
   const [settings, saveSettings] = useSettings(batchList);
-  const [active, setActive] = useState();
+  const [active, setActive] = useState(0);
   const [visible, setVisible] = useState(true);
   const lastScrollY = useRef(0);
   const timeoutRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Reset footer visibility after 5s
+  // Reset footer visibility after 3s
   const resetTimeout = () => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    if (active === undefined) setActive(0);
     timeoutRef.current = setTimeout(() => {
       setVisible(false);
     }, 3000);
   };
+
+  // Sync active tab with current location
   useEffect(() => {
-    // Show and reset timer on any user action
+    const current = navItems.findIndex(
+      (item) => item.route === location.pathname
+    );
+    setActive(current !== -1 ? current : 0);
+
     const handleUserAction = () => {
       setVisible(true);
       resetTimeout();
     };
 
-    // Listen for these events to detect user activity
     window.addEventListener("scroll", handleUserAction);
     window.addEventListener("touchstart", handleUserAction);
     window.addEventListener("mousemove", handleUserAction);
     window.addEventListener("mousedown", handleUserAction);
 
-    resetTimeout(); // Setup initial timer
+    resetTimeout();
 
     return () => {
       window.removeEventListener("scroll", handleUserAction);
@@ -52,8 +56,6 @@ export default function Footer() {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
   }, [location.pathname]);
-
-  // ...rest of your Footer code
 
   return (
     <motion.div
@@ -83,7 +85,7 @@ export default function Footer() {
             {isActive && (
               <motion.div
                 layoutId="activeHighlight"
-                className="absolute top-2/1 left-2/1 -translate-x-1/2 -translate-y-2/1 w-16 h-16 rounded-xl bg-blue-100"
+                className="absolute inset-0 rounded-xl bg-blue-100"
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
               />
             )}
