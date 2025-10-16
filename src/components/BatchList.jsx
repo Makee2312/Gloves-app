@@ -79,7 +79,7 @@ export default function BatchList({ batchList, searchText, setSearchText }) {
 
   const STATUS_COLORS = {
     Completed: "#10B981", // green
-    "In Progress": "#FACC15", // yellow
+    "In progress": "#FACC15", // yellow
     "In QC": "#EC4899", // pink
     "QC Failed": "#EF4444", // red
     "Yet to start": "#9CA3AF", // gray

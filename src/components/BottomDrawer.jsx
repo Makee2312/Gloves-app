@@ -90,7 +90,7 @@ export default function BottomDrawer({ open, setOpen }) {
               Save
             </button>
           </div>
-          <div className="h-[48px] "></div>
+          <div className="h-[74px] "></div>
         </div>
       </div>
     )

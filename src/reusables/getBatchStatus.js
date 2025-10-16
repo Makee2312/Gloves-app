@@ -56,6 +56,6 @@ export function getBatchColor(batchStatus) {
     : batchStatus === "In QC"
     ? "bg-pink-100 text-pink-600"
     : batchStatus === "In progress"
-    ? "bg-pink-100 text-pink-600"
+    ? "bg-yellow-100 text-yellow-600"
     : "bg-gray-100 text-gray-600";
 }
