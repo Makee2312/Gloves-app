@@ -166,6 +166,7 @@ export default function BatchProgress() {
         {/* ----------------- Continuous Monitoring Dashboard (MOBILE-FIRST) ----------------- */}
         <section className="space-y-3">
           {/* QC Failed */}
+          {/* QC Failed */}
           <div>
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-sm font-semibold text-gray-700">QC Failed Batches</h3>
@@ -173,47 +174,83 @@ export default function BatchProgress() {
             </div>
 
             <div className="flex gap-3 overflow-x-auto pb-2">
-              {qcFailedBatches.length === 0 && <div className="text-xs text-gray-500">No QC failures detected.</div>}
+              {qcFailedBatches.length === 0 && (
+                <div className="text-xs text-gray-500">No QC failures detected.</div>
+              )}
+
               {qcFailedBatches.map(({ batch, qcInfo, gloves }) => {
-                const firstFail = (qcInfo.failDetails && qcInfo.failDetails[0]) || null;
+                const failList = qcInfo?.failDetails || [];
                 const qcIndex = (batch.steps || []).findIndex((s) => s.processType === "qc");
+
+                // Handle click to show details in search bar below
+                const handleQcFailedClick = () => {
+                  setSelectedBatch(batch.gloveBatchId);
+                  setActiveStepIndex(qcIndex !== -1 ? qcIndex : 0);
+                  dispatch(setActiveBatch(batch));
+                  setTimeout(() => {
+                    document.getElementById("batch-detail-view")?.scrollIntoView({
+                      behavior: "smooth",
+                      block: "start",
+                    });
+                  }, 80);
+                };
+
                 return (
-                  <div key={batch.gloveBatchId} className="min-w-[260px] flex-shrink-0">
-                    <div
-                      role="button"
-                      tabIndex={0}
-                      onClick={() => handleBatchSelect(batch.gloveBatchId, qcIndex !== -1 ? qcIndex : 0)}
-                    >
-                      <Card className="cursor-pointer hover:shadow-md active:scale-[0.99] transition-transform">
-                        <div className="flex justify-between items-start gap-2">
-                          <div>
-                            <div className="text-sm font-semibold text-gray-800">Batch #{batch.gloveBatchId}</div>
-                            <div className="text-xs text-gray-400 mt-0.5">{batch.createdDate}</div>
+                  <div
+                    key={batch.gloveBatchId}
+                    className="min-w-[280px] flex-shrink-0"
+                    onClick={handleQcFailedClick}
+                    role="button"
+                    tabIndex={0}
+                  >
+                    <Card className="cursor-pointer hover:shadow-md active:scale-[0.99] transition-transform">
+                      {/* Header */}
+                      <div className="flex justify-between items-start gap-2">
+                        <div>
+                          <div className="text-sm font-semibold text-gray-800">
+                            Batch #{batch.gloveBatchId}
                           </div>
-                          <div className="text-right">
-                            <div className="text-xs text-gray-500">Gloves</div>
-                            <div className="text-sm font-semibold">{gloves || "—"}</div>
+                          <div className="text-xs text-gray-400 mt-0.5">
+                            {batch.createdDate}
                           </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-xs text-gray-500">Gloves</div>
+                          <div className="text-sm font-semibold">{gloves || "—"}</div>
+                        </div>
+                      </div>
+
+                      {/* Fail details */}
+                      <div className="mt-3 border-t border-gray-100 pt-3">
+                        <div className="text-xs text-gray-500 mb-1">
+                          {failList.length > 0
+                            ? `${failList.length} failure${failList.length > 1 ? "s" : ""}`
+                            : "No details available"}
                         </div>
 
-                        <div className="mt-3 border-t border-gray-100 pt-3">
-                          <div className="text-xs text-gray-500 mb-1">Top failure</div>
-                          {firstFail ? (
-                            <div className="flex items-center justify-between gap-2">
-                              <div className="text-xs text-red-700 font-semibold capitalize">
-                                {firstFail.field.replace(/([A-Z])/g, " $1")}
-                              </div>
-                              <div className="text-sm font-bold text-red-800 bg-red-50 px-2 py-0.5 rounded-md">
-                                {String(firstFail.value)}
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="text-xs text-gray-500">Details in QC step</div>
-                          )}
-                          <div className="mt-2 text-[11px] text-gray-500">Tap to open QC details</div>
+                        {failList.length > 0 ? (
+                          <ul className="max-h-32 overflow-y-auto pr-1 space-y-1">
+                            {failList.map((fail, i) => (
+                              <li
+                                key={i}
+                                className="flex items-center justify-between gap-2 bg-red-50 text-red-800 rounded-md px-2 py-1"
+                              >
+                                <span className="capitalize text-[11px] font-medium">
+                                  {fail.field.replace(/([A-Z])/g, " $1")}
+                                </span>
+                                <span className="text-[11px] font-semibold">{String(fail.value)}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <div className="text-xs text-gray-500">No QC fail fields detected.</div>
+                        )}
+
+                        <div className="mt-2 text-[11px] text-gray-500">
+                          Tap to open QC details
                         </div>
-                      </Card>
-                    </div>
+                      </div>
+                    </Card>
                   </div>
                 );
               })}
