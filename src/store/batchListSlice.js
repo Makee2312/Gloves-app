@@ -100,7 +100,7 @@ const batchListSlice = createSlice({
   extraReducers: (builder) => {
     builder.addCase(fetchBatchList.fulfilled, (state, action) => {
       console.log( action.payload?.data )
-      return (state = action.payload?.data || {
+      return (state = Object.entries(action.payload?.data?.batchLs).length > 0? action.payload?.data: {
         "batchLs": [
             {
                 "gloveBatchId": 10001,
@@ -679,8 +679,8 @@ const batchListSlice = createSlice({
                                 "type": " Water-tightness test",
                                 "results": {
                                     "waterTightnessAql": "0.25",
-                                    "waterTightnessPassCount": "100",
-                                    "waterTightnessFailCount": "0"
+                                    "waterTightnessPassCount": "900",
+                                    "waterTightnessFailCount": "100"
                                 }
                             },
                             {
