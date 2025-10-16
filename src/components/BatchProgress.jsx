@@ -150,7 +150,7 @@ export default function BatchProgress() {
     return (batches || [])
       .map((b) => {
         const d = detectQcFailures(b);
-        return { batch: b, qcInfo: d, gloves: extractGlovesCount(b) };
+        return { batch: b, qcInfo: d, gloves: b.batchCount };
       })
       .filter((x) => x.qcInfo.totalFails > 0);
   }, [batches]);
@@ -160,7 +160,7 @@ export default function BatchProgress() {
       .map((b) => {
         const nextIdx = getNextStepIndex(b);
         const nextStep = nextIdx === null ? null : b.steps[nextIdx];
-        return { batch: b, nextIdx, nextStep, gloves: extractGlovesCount(b) };
+        return { batch: b, nextIdx, nextStep, gloves: b.batchCount };
       })
       .filter(
         (x) =>
@@ -172,7 +172,7 @@ export default function BatchProgress() {
   const completedBatches = useMemo(() => {
     return (batches || [])
       .filter((b) => getBatchStatus(b).toLowerCase() === "completed")
-      .map((b) => ({ batch: b, gloves: extractGlovesCount(b) }));
+      .map((b) => ({ batch: b, gloves: b.batchCount }));
   }, [batches]);
 
   // keep original behaviour and data for the main below section
