@@ -604,9 +604,133 @@ const batchListSlice = createSlice({
             },
             {
                 "gloveBatchId": 10007,
-                "status": "Yet to start",
+                "status": "Completed",
                 "createdDate": "16/10/2025",
                 "batchCount": "10000",
+                "steps": [
+                    {
+                        "processType": "latexPreparation",
+                        "data": {
+                            "sulfur": "5 grams",
+                            "zincOxide": "3 grams",
+                            "accelerators": "1 grams",
+                            "antioxidants": "1 grams",
+                            "stabilizers": "2 grams",
+                            "compoundingTime": "10 minutes",
+                            "compoundingTemp": "60 °C",
+                            "compoundViscosity": "2000 cP",
+                            "finalPh": "7 pH"
+                        },
+                        "photo": null,
+                        "saved": true,
+                        "saved_date": "16-10-2025 16:13:20"
+                    },
+                    {
+                        "processType": "formerPreparation",
+                        "data": {
+                            "waterTemp": "25 °C",
+                            "chlorineConc": "200 ppm",
+                            "coagulantPh": "4 pH",
+                            "immersionSpeed": "5 cm/s",
+                            "dwellTime": "60 seconds"
+                        },
+                        "photo": null,
+                        "saved": true,
+                        "saved_date": "16-10-2025 16:13:20"
+                    },
+                    {
+                        "processType": "leaching",
+                        "data": {
+                            "waterTemp": "40 °C",
+                            "flowRate": "50 L/min",
+                            "duration": "60 minutes"
+                        },
+                        "photo": null,
+                        "saved": true,
+                        "saved_date": "16-10-2025 16:13:20"
+                    },
+                    {
+                        "processType": "finishing",
+                        "data": {
+                            "rollerSpeed": "50 rpm",
+                            "rollerPressure": "1 MPa",
+                            "powderedGloves": "yes yes/no",
+                            "polymerConc": "20 g/L",
+                            "cornstarchThickness": " mm",
+                            "chlorineConcentration": "800 ppm",
+                            "chlorineTime": "120 seconds"
+                        },
+                        "photo": null,
+                        "saved": true,
+                        "saved_date": "16-10-2025 16:13:20"
+                    },
+                    {
+                        "processType": "qc",
+                        "data": [
+                            {
+                                "type": "Visual inspection",
+                                "results": {
+                                    "visualInspectionMethod": "Test",
+                                    "defectType": "NA",
+                                    "visualDefectCount": "0"
+                                }
+                            },
+                            {
+                                "type": " Water-tightness test",
+                                "results": {
+                                    "waterTightnessAql": "0.25",
+                                    "waterTightnessPassCount": "100",
+                                    "waterTightnessFailCount": "0"
+                                }
+                            },
+                            {
+                                "type": "Physical property tests",
+                                "results": {
+                                    "forceAtBreak": "10",
+                                    "elongationAtBreak": "500",
+                                    "tensileStrength": "30"
+                                }
+                            },
+                            {
+                                "type": "Dimensional tests",
+                                "results": {
+                                    "gloveLength": "220",
+                                    "palmWidth": "70",
+                                    "gloveThickness": "0.2"
+                                }
+                            },
+                            {
+                                "type": "Sterility test",
+                                "results": {
+                                    "sterilityResult": "pass"
+                                }
+                            },
+                            {
+                                "type": "Biocompatibility test",
+                                "results": {
+                                    "biocompatibilityResult": "pass"
+                                }
+                            },
+                            {
+                                "type": "Packaging data",
+                                "results": {
+                                    "packagingID": "101",
+                                    "testResultsSummary": "Test",
+                                    "sterilizationDetails": "Test",
+                                    "comments": "Test"
+                                }
+                            }
+                        ],
+                        "photo": null,
+                        "saved": true,
+                        "saved_date": "16-10-2025 16:13:20"
+                    }
+                ]
+            },
+            {
+                "gloveBatchId": 10008,
+                "status": "Yet to start",
+                "createdDate": "16/10/2025",
                 "steps": [
                     {
                         "processType": "latexPreparation",
@@ -642,10 +766,10 @@ const batchListSlice = createSlice({
             }
         ],
         "activeBatch": {
-            "gloveBatchId": 10002,
-            "status": "Completed",
+            "gloveBatchId": 10003,
+            "status": "In QC",
             "createdDate": "16/10/2025",
-            "batchCount": "200",
+            "batchCount": "500",
             "steps": [
                 {
                     "processType": "latexPreparation",
@@ -653,12 +777,12 @@ const batchListSlice = createSlice({
                         "sulfur": "5 grams",
                         "zincOxide": "3 grams",
                         "accelerators": "1 grams",
-                        "antioxidants": "1.5 grams",
+                        "antioxidants": "1 grams",
                         "stabilizers": "2 grams",
                         "compoundingTime": "10 minutes",
                         "compoundingTemp": "60 °C",
-                        "compoundViscosity": "2000 cP",
-                        "finalPh": "8 pH"
+                        "compoundViscosity": "500 cP",
+                        "finalPh": "7 pH"
                     },
                     "photo": null,
                     "saved": true,
@@ -667,9 +791,9 @@ const batchListSlice = createSlice({
                 {
                     "processType": "formerPreparation",
                     "data": {
-                        "waterTemp": "45 °C",
+                        "waterTemp": "25 °C",
                         "chlorineConc": "200 ppm",
-                        "coagulantPh": "6 pH",
+                        "coagulantPh": "4 pH",
                         "immersionSpeed": "10 cm/s",
                         "dwellTime": "60 seconds"
                     },
@@ -691,11 +815,11 @@ const batchListSlice = createSlice({
                 {
                     "processType": "finishing",
                     "data": {
-                        "rollerSpeed": "300 rpm",
+                        "rollerSpeed": "50 rpm",
                         "rollerPressure": "1 MPa",
-                        "powderedGloves": "yes yes/no",
-                        "polymerConc": "17 g/L",
-                        "cornstarchThickness": " mm",
+                        "powderedGloves": "no yes/no",
+                        "polymerConc": " g/L",
+                        "cornstarchThickness": "0.5 mm",
                         "chlorineConcentration": "200 ppm",
                         "chlorineTime": "10 seconds"
                     },
@@ -705,66 +829,13 @@ const batchListSlice = createSlice({
                 },
                 {
                     "processType": "qc",
-                    "data": [
-                        {
-                            "type": "Visual inspection",
-                            "results": {
-                                "visualInspectionMethod": "Test",
-                                "defectType": "Test",
-                                "visualDefectCount": "20"
-                            }
-                        },
-                        {
-                            "type": " Water-tightness test",
-                            "results": {
-                                "waterTightnessAql": "2",
-                                "waterTightnessPassCount": "100",
-                                "waterTightnessFailCount": "10"
-                            }
-                        },
-                        {
-                            "type": "Physical property tests",
-                            "results": {
-                                "forceAtBreak": "18",
-                                "elongationAtBreak": "900",
-                                "tensileStrength": "30"
-                            }
-                        },
-                        {
-                            "type": "Dimensional tests",
-                            "results": {
-                                "gloveLength": "220",
-                                "palmWidth": "70",
-                                "gloveThickness": "0.2"
-                            }
-                        },
-                        {
-                            "type": "Sterility test",
-                            "results": {
-                                "sterilityResult": "pass"
-                            }
-                        },
-                        {
-                            "type": "Biocompatibility test",
-                            "results": {
-                                "biocompatibilityResult": "fail"
-                            }
-                        },
-                        {
-                            "type": "Packaging data",
-                            "results": {
-                                "packagingID": "101",
-                                "testResultsSummary": "test",
-                                "sterilizationDetails": "test",
-                                "comments": "test"
-                            }
-                        }
-                    ],
+                    "data": {},
                     "photo": null,
-                    "saved": true,
-                    "saved_date": "16-10-2025 13:06:05"
+                    "saved": false
                 }
-            ]
+            ],
+            "derivedStatus": "In QC",
+            "isFinished": false
         }
     })
     });

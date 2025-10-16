@@ -206,7 +206,7 @@ export default function Qc() {
   );
 
   return (
-    <div className="px-3 sm:px-6 py-3">
+    <div className="px-3 sm:px-6 py-3 mb-12">
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
@@ -272,7 +272,6 @@ export default function Qc() {
             const isActive = activeStep === index;
             const results = qcResultData[index]?.results;
             const isDone = results && Object.keys(results).length > 0;
-            console.log(results);
             return (
               <div
                 key={index}

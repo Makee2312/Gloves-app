@@ -46,8 +46,8 @@ export const processValidations = {
 
     // Water-tightness Test
     waterTightnessAql: { min: 0.25, max: 2.5 }, // AQL range for general to surgical gloves
-    waterTightnessPassCount: { min: 0, max: 100 }, // count
-    waterTightnessFailCount: { min: 0, max: 10 }, // count
+  //   waterTightnessPassCount: { min: 0, max: 100 }, // count
+   // waterTightnessFailCount: { min: 0, max: 10 }, // count
 
     // Physical Properties
     forceAtBreak: { min: 6, max: 18 }, // N
