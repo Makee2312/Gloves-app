@@ -78,12 +78,12 @@ export default function BatchList({ batchList, searchText, setSearchText }) {
   );
 
   const STATUS_COLORS = {
-    Completed: "#10B981", // green
-    "In progress": "#FACC15", // yellow
-    "In QC": "#EC4899", // pink
-    "QC Failed": "#EF4444", // red
-    "Yet to start": "#9CA3AF", // gray
-    Unknown: "#D1D5DB", // light gray fallback
+    Completed: "#A7F3D0", // Green
+    "In progress": "#FDE68A", // Yellow
+    "In QC": "#F9A8D4", // Pink
+    "QC Failed": "#FCA5A5", // Red
+    "Yet to start": "#BFDBFE", // Gray
+    Unknown: "#D1D5DB", // Light gray fallback
   };
 
   const chartData = useMemo(() => {

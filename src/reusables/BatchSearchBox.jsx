@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Search, Settings } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -8,6 +8,17 @@ export default function BatchSearchBox({
   setActiveBatch,
 }) {
   const [isFocused, setIsFocused] = useState(false);
+  const [filteredList, setFilteredList] = useState(batchesList);
+
+  useEffect(() => {
+    setFilteredList(
+      activeBatch
+        ? batchesList.filter((batch) =>
+            batch.gloveBatchId.toString().includes(activeBatch)
+          )
+        : batchesList
+    );
+  }, [activeBatch]);
   return (
     <div className="relative w-full max-w-sm mx-auto">
       {/* Search Bar */}
@@ -20,6 +31,7 @@ export default function BatchSearchBox({
         <input
           placeholder="Search here..."
           value={activeBatch}
+          onChange={(e) => setActiveBatch(e.target.value)}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setTimeout(() => setIsFocused(false), 150)} // delay to allow item click
           className="flex-1 outline-none text-sm text-gray-700 bg-transparent"
@@ -37,8 +49,8 @@ export default function BatchSearchBox({
             transition={{ duration: 0.2 }}
             className="absolute left-4 right-4 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 z-10"
           >
-            {batchesList
-              ? batchesList.map((item, index) => (
+            {filteredList
+              ? filteredList.map((item, index) => (
                   <button
                     key={index}
                     onClick={() => {
