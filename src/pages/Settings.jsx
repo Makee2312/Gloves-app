@@ -60,18 +60,18 @@ export default function Settings() {
         {settingsList.map((setting, index) => (
           <div
             key={index}
-            className={`bg-white dark:bg-gray-800 shadow-md rounded-xl p-6 flex flex-col items-start gap-4 hover:shadow-lg transition-shadow cursor-pointer ${
+            className={`bg-white  shadow-md rounded-xl p-6 flex flex-col items-start gap-4 hover:shadow-lg transition-shadow cursor-pointer ${
               activeSetting === index ? "ring-2 ring-blue-500" : ""
             }`}
             onClick={() =>
               setActiveSetting((prev) => (prev === index ? null : index))
             }
           >
-            <div className="text-blue-600 dark:text-blue-400">
+            <div className="text-blue-600 ">
               {setting.icon}
             </div>
             <h2 className="text-lg font-semibold">{setting.title}</h2>
-            <p className="text-gray-600 dark:text-gray-300 text-sm">
+            <p className="text-gray-600  text-sm">
               {setting.description}
             </p>
           </div>
