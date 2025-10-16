@@ -14,7 +14,7 @@ const navItems = [
 export default function Footer() {
   const batchList = useSelector((state) => state.batchList);
   const [settings, saveSettings] = useSettings(batchList);
-  const [active, setActive] = useState(0);
+  const [active, setActive] = useState();
   const [visible, setVisible] = useState(true);
   const lastScrollY = useRef(0);
   const timeoutRef = useRef(null);
@@ -24,38 +24,36 @@ export default function Footer() {
   // Reset footer visibility after 5s
   const resetTimeout = () => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    if (active === undefined) setActive(0);
     timeoutRef.current = setTimeout(() => {
-      if (location.pathname !== "/") setVisible(false);
+      setVisible(false);
     }, 3000);
   };
-
   useEffect(() => {
-    // Always show on Dashboard
-    // if (location.pathname === "/") {
-    //   setVisible(true);
-    //   return;
-    // }
-
-    const handleScroll = () => {
-      const currentY = window.scrollY;
-
-      // If scrolled 20px up
-      if (lastScrollY.current - currentY > 1) {
-        setVisible(true);
-        resetTimeout();
-      }
-
-      lastScrollY.current = currentY;
+    // Show and reset timer on any user action
+    const handleUserAction = () => {
+      setVisible(true);
+      resetTimeout();
     };
 
-    window.addEventListener("scroll", handleScroll);
-    resetTimeout();
+    // Listen for these events to detect user activity
+    window.addEventListener("scroll", handleUserAction);
+    window.addEventListener("touchstart", handleUserAction);
+    window.addEventListener("mousemove", handleUserAction);
+    window.addEventListener("mousedown", handleUserAction);
+
+    resetTimeout(); // Setup initial timer
 
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("scroll", handleUserAction);
+      window.removeEventListener("touchstart", handleUserAction);
+      window.removeEventListener("mousemove", handleUserAction);
+      window.removeEventListener("mousedown", handleUserAction);
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
   }, [location.pathname]);
+
+  // ...rest of your Footer code
 
   return (
     <motion.div
@@ -85,7 +83,7 @@ export default function Footer() {
             {isActive && (
               <motion.div
                 layoutId="activeHighlight"
-                className="absolute top-2/1 left-2/1 -translate-x-1/2 -translate-y-1/2 w-16 h-16 rounded-xl bg-blue-100"
+                className="absolute top-2/1 left-2/1 -translate-x-1/2 -translate-y-2/1 w-16 h-16 rounded-xl bg-blue-100"
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
               />
             )}
