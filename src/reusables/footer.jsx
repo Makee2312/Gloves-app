@@ -40,7 +40,7 @@ export default function Footer() {
       const currentY = window.scrollY;
 
       // If scrolled 20px up
-      if (lastScrollY.current - currentY > 2) {
+      if (lastScrollY.current - currentY > 1) {
         setVisible(true);
         resetTimeout();
       }
@@ -85,8 +85,7 @@ export default function Footer() {
             {isActive && (
               <motion.div
                 layoutId="activeHighlight"
-                className="absolute top-2/1 -translate-y-1/2 
-                           w-16 h-16 rounded-xl bg-blue-100"
+                className="absolute top-2/1 left-2/1 -translate-x-1/2 -translate-y-1/2 w-16 h-16 rounded-xl bg-blue-100"
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
               />
             )}
