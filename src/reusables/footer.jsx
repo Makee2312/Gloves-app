@@ -77,7 +77,7 @@ export default function Footer() {
               saveSettings(batchList);
               navigate(item.route);
             }}
-            className="relative flex flex-col items-center justify-center w-20"
+            className="relative flex flex-col items-center justify-center"
           >
             {/* 🔵 Animated highlight square */}
             {isActive && (
